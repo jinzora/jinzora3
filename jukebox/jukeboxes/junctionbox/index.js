@@ -150,7 +150,7 @@ if (session == null) {
   Cookie.set("junctionbox_session", session);
 }
 
-var config = { host: "openjunction.org"};
+var config = { host: "sb.openjunction.org"};
 activity.sessionID = session;
 
 var jx = JX.getInstance(config).newJunction(activity,actor);

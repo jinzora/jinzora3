@@ -249,7 +249,7 @@ function junction_jukebox_init() {
     session = window.location.hostname + "_junctionbox";
     Cookie.set("junctionbox_session", session);
   }
-  var config = { host: "openjunction.org" };
+  var config = { host: "sb.openjunction.org" };
   var activity = { sessionID: session };
 
   JX.getInstance(config).newJunction(activity,jb_actor);
