@@ -1375,6 +1375,7 @@ function print_results($results, $format='xml', $trackfields=false, $nodefields=
 		    if(!is_array($trackfields) || in_array('artist', $trackfields)) $n['artist'] = ($artist) ? $artist->getName() : '';
 		    if(!is_array($trackfields) || in_array('genre', $trackfields)) $n['genre'] = ($genre) ? $genre->getName() : '';
 		    if(!is_array($trackfields) || in_array('playlink', $trackfields)) $n['playlink'] = $this_site.$t->getPlayHREF();
+		    if(!is_array($trackfields) || in_array('playlink', $trackfields)) $n['download'] = $this_site.$t->getDownloadHREF();
 		    if(!is_array($trackfields) || in_array('metadata', $trackfields)) $n['metadata'] = $meta;
 		    if(!is_array($trackfields) || in_array('path', $trackfields)) $n['path'] = $t->getPath("string");
 		    if(!is_array($trackfields) || in_array('type', $trackfields)) $n['type'] = 'Track';

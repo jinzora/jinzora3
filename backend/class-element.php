@@ -1150,7 +1150,27 @@
 		  }
 		  return urlize($arr);
 		}
-		
 
+		function getDownloadHREF() {
+		  $arr = array();
+		  $arr['jz_path'] = $this->getPath("String");
+		  $arr['action'] = 'download';
+
+		  if ($this->isLeaf()) {
+		    $arr['type'] = 'track';
+		  } else {
+		    $arr['type'] = 'node';
+		  } 
+		  if (isset($_REQUEST['user'])) {
+		    $arr['user'] = $_REQUEST['user'];
+		  }
+		  if (isset($_REQUEST['pass'])) {
+		    $arr['pass'] = $_REQUEST['pass'];
+		  }
+		  if (isset($_REQUEST['pw_hashed'])) {
+		    $arr['pw_hashed'] = $_REQUEST['pw_hashed'];
+		  }
+		  return urlize($arr);
+		}
 	}
 ?>
