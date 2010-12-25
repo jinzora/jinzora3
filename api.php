@@ -459,7 +459,7 @@ function setpassword() {
 		}
 		print_results($results,$type, $trackfields, $nodefields);
 	}
-	
+
 	function getTrackArt(){
 		$display = new jzDisplay();
 		$track = &new jzMediaTrack($_GET['jz_path'],"id");
@@ -495,7 +495,7 @@ function setpassword() {
 		$track = &new jzMediaTrack($_GET['jz_path'],"id");
 					
 		$meta = $track->getMeta();
-					
+
 		$album = $track->getAncestor("album");
 		$art = $album->getMainArt();
 		$artist = $album->getAncestor("artist");
@@ -1255,6 +1255,7 @@ function print_results($results, $format='xml', $trackfields=false, $nodefields=
 					
 					// Now let's display
 					echo "      <track>\n";
+					if(!is_array($trackfields) || in_array('id', $trackfields)) echo "        <id>". xmlentities($track->getID()). "</id>\n";
 					if(!is_array($trackfields) || in_array('name', $trackfields)) echo "        <name>". xmlentities($meta['title']). "</name>\n";
 					if(!is_array($trackfields) || in_array('metadata', $trackfields)){
 						echo "        <metadata>\n";
@@ -1308,6 +1309,7 @@ function print_results($results, $format='xml', $trackfields=false, $nodefields=
                                         }
 					
 					echo "      <node>\n";
+					if(!is_array($nodefields) || in_array('id', $nodefields)) echo "        <id>". xmlentities($node->getID()). "</id>\n";
 					if(!is_array($nodefields) || in_array('name', $nodefields)) echo "        <name>". xmlentities($node->getName()). "</name>\n";
 					if(!is_array($nodefields) || in_array('type', $nodefields)) echo "        <type>". xmlentities(ucwords($node->getPType())). "</type>\n";
 					if(!is_array($nodefields) || in_array('link', $nodefields)) echo "        <link>". xmlentities($this_site.$display->link($node,false,false,false,true,true)). "</link>\n";
@@ -1370,6 +1372,7 @@ function print_results($results, $format='xml', $trackfields=false, $nodefields=
 		    if(!is_array($trackfields) || in_array('image', $trackfields)) $n['image']=($art) ? $display->returnImage($art,false,false, false, "limit", false, false, false, false, false, "0", false, true, true) : '';
 		    if ($album) $art = $album->getMainArt('75x75');
 		    if(!is_array($trackfields) || in_array('thumbnail', $trackfields))  $n['thumbnail']=($art) ? $display->returnImage($art,false,75, 75, "limit", false, false, false, false, false, "0", false, true, true) : '';
+		    if(!is_array($trackfields) || in_array('id', $trackfields)) $n['id'] = $t->getID();
 		    if(!is_array($trackfields) || in_array('name', $trackfields)) $n['name'] = $meta['title'];
 		    if(!is_array($trackfields) || in_array('album', $trackfields)) $n['album'] = ($album) ? $album->getName() : '';
 		    if(!is_array($trackfields) || in_array('artist', $trackfields)) $n['artist'] = ($artist) ? $artist->getName() : '';
