@@ -1396,6 +1396,7 @@ function print_results($results, $format='xml', $trackfields=false, $nodefields=
 			
 		    $art = $n->getMainArt();
 
+		    if(!is_array($nodefields) || in_array('id', $nodefields)) $a['id']=$n->getID();
 		    if(!is_array($nodefields) || in_array('name', $nodefields)) $a['name']=$n->getName();
 		    if(!is_array($nodefields) || in_array('type', $nodefields))  $a['type']=ucwords($n->getPType());
 		    if(!is_array($nodefields) || in_array('link', $nodefields)) $a['link']=$this_site.$display->link($node,false,false,false,true,true);
