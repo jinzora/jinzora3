@@ -454,8 +454,8 @@ function setpassword() {
 		  }
 		}
 		$results = $root->getSubNodes($ntype,$distance);
-		if (isset($_REQUEST['offset']) || isset($REQUEST['length'])){
-			$results = array_slice($results,$_REQUEST['offset'],$_REQUEST['length']);
+		if (isset($_REQUEST['offset']) || isset($_REQUEST['limit'])){
+			$results = array_slice($results,$_REQUEST['offset'],$_REQUEST['limit']);
 		}
 		print_results($results,$type, $trackfields, $nodefields);
 	}
