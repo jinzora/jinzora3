@@ -110,7 +110,7 @@
 		* @version 6/4/04
 		* @since 6/4/04
 		*/
-		function getSubNodes($type='nodes',$distance=false, $random=false, $limit=0, $hasArt = false) {
+		function getSubNodes($type='nodes',$distance=false, $random=false, $limit=0, $hasArt = false, $offset=false) {
 		
 		  if ($distance === false) {
 		    $distance = $this->getNaturalDepth();	

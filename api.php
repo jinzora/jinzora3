@@ -453,10 +453,15 @@ function setpassword() {
 		    $ntype = 'tracks';
 		  }
 		}
-		$results = $root->getSubNodes($ntype,$distance);
+
 		if (isset($_REQUEST['offset']) || isset($_REQUEST['limit'])){
-			$results = array_slice($results,$_REQUEST['offset'],$_REQUEST['limit']);
+			//$results = array_slice($results,$_REQUEST['offset'],$_REQUEST['limit']);
 		}
+
+		$lim = isset($_REQUEST['limit']) ? $_REQUEST['limit'] : 0;
+		$off = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : false;
+		$results = $root->getSubNodes($ntype,$distance,false,$lim,false,$off);
+
 		print_results($results,$type, $trackfields, $nodefields);
 	}
 

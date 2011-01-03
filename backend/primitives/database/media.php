@@ -721,7 +721,7 @@
 		* @version 10/31/04
 		* @since 5/14/2004
 		*/
-		function getSubNodes($type="nodes", $distance=false, $random=false, $limit=0, $hasArt = false) {
+		function getSubNodes($type="nodes", $distance=false, $random=false, $limit=0, $hasArt = false, $offset=false) {
 			global $sql_type, $sql_pw, $sql_socket, $sql_db, $sql_usr,$backend,$default_importer;
 			
 			if ($distance === false) {
@@ -759,7 +759,6 @@
             	$artString = "";
             }
 			
-			
 			// now the query.
 			if ($type == "leaves") {
 				$sql = "SELECT * FROM jz_tracks WHERE level $op $level AND hidden = 'false' AND path LIKE '${pathString}%'";
@@ -773,6 +772,9 @@
 				}
 				if ($limit > 0) {
 					$sql .= " LIMIT $limit";
+				}
+				if ($offset !== false) {
+				   $sql .= " OFFSET $offset";
 				}
 				return jz_db_object_query($sql);
 			} else {
