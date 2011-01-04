@@ -656,8 +656,12 @@
 				$pathArray = $this->getPath();
 				$level = $this->getLevel();
 				$pathString = jz_db_escape($this->getPath("String"));
-	                     	$sql = "SELECT nodecount,leafcount FROM jz_nodes WHERE path LIKE '${pathString}'";
-	                     	
+				if ($pathString == "") {
+				  $sql = "SELECT count(*) as nodecount, 0 as leafcount FROM jz_nodes WHERE level = 1";
+				} else {
+	                     	  $sql = "SELECT nodecount,leafcount FROM jz_nodes WHERE path LIKE '${pathString}'";
+	                     	}
+
 	                     	$results = jz_db_query($link,$sql);
 	                     	jz_db_close($link);
 
