@@ -462,7 +462,9 @@ function setpassword() {
 		$off = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : false;
 		$results = $root->getSubNodes($ntype,$distance,false,$lim,false,$off);
 
-		print_results($results,$type, $trackfields, $nodefields);
+		$total = $root->getSubNodeCount($ntype,$distance);
+		$meta = array('totalMatches' => $total);
+		print_results($results, $type, $trackfields, $nodefields, $meta);
 	}
 
 	function getTrackArt(){
@@ -1216,7 +1218,7 @@ function print_lists($results, $format='xml') {
  * Results is an array of nodes and tracks.
  * Prints results in a variety of formats.
  */
-function print_results($results, $format='xml', $trackfields=false, $nodefields=false) {
+function print_results($results, $format='xml', $trackfields=false, $nodefields=false, $meta=false) {
   global $this_site,$api_page; 
   $display = new jzDisplay();
 		$tracks = array();
@@ -1423,12 +1425,16 @@ function print_results($results, $format='xml', $trackfields=false, $nodefields=
 		    $jn[] = $a;
 		  }
 
+		  $obj = array('tracks'=>$jt,'nodes'=>$jn);
+		  if ($meta !== false) {
+		    $obj['meta'] = $meta;
+		  }
 		  if ($format == 'jsonp') {
 		    echo $_GET['jsoncallback'] . '(';
-		    echo json_encode(array('tracks'=>$jt,'nodes'=>$jn));
+		    echo json_encode($obj);
 		    echo ')';
 		  } else {
-		    echo json_encode(array('tracks'=>$jt,'nodes'=>$jn));
+		    echo json_encode($obj);
 		  }
 		  
 

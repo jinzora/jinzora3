@@ -795,6 +795,9 @@
 				if ($limit > 0) {
 					$sql .= " LIMIT $limit";
 				}
+				if ($offset !== false) {
+				   $sql .= " OFFSET $offset";
+				}
 				return jz_db_object_query($sql);
 			}
 		}
