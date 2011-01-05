@@ -1,4 +1,4 @@
-<?php 
+<?php
 	define('JZ_SECURE_ACCESS','true');
 	/**
 	* - JINZORA | Web-based Media Streamer -  
@@ -58,10 +58,13 @@
 	$this_page = setThisPage();
         $enable_page_caching = "false";
 
-url_alias();
-// see this method for persistent vars
-$api_page = get_base_url();
+	url_alias();
+	// see this method for persistent vars
+	$api_page = get_base_url();
 	
+	// Clean up input variables
+	$_REQUEST = unurlize($_REQUEST);
+
 	// Let's create our user object for later
 	$jzUSER = new jzUser();
 	
