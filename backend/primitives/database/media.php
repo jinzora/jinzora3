@@ -2957,6 +2957,7 @@ function filenameToPath($fp) {
 				$results = jz_db_query($link, "SELECT jz_tracks.*,jz_nodes.name,jz_nodes.descr FROM jz_tracks,jz_nodes 
 				WHERE jz_nodes.path = '$path' AND jz_nodes.path = jz_tracks.path");
 				
+				// Also see "backends/db-common.php" for an in-place meta retrieval.
 				$meta['title'] = jz_db_unescape($results->data[0]['trackname']);
 				$meta['bitrate'] = jz_db_unescape($results->data[0]['bitrate']);
 				$meta['frequency'] = jz_db_unescape($results->data[0]['frequency']);
