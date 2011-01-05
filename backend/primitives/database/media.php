@@ -2399,8 +2399,12 @@ function filenameToPath($fp) {
 		  global $sql_type,$sql_pw,$sql_usr,$sql_socket,$sql_db,$jzSERVICES;
 		  
 		  $path = jz_db_escape($this->getPath("String"));
-		  $results = jz_db_simple_query("SELECT main_art FROM jz_nodes WHERE path = '$path'");
-		  
+		  if ($this->artpath) {
+		     $results = array('main_art' => $this->artpath);
+		  } else {
+		     $results = jz_db_simple_query("SELECT main_art FROM jz_nodes WHERE path = '$path'");
+		  }
+
 		  if ($results['main_art']) {
 		    // Now let's make create the resized art IF needed
 		    $this->artpath = jz_db_unescape($results['main_art']);
@@ -2414,7 +2418,7 @@ function filenameToPath($fp) {
 		      if ($meta['pic_name'] <> ""){
 			if ($dimensions){
 			  // Now lets check or create or image and return the resized one
-			  return $jzSERVICES->resizeImage("ID3:". $tracks[0]->getDataPath(), $dimensions, $imageType);
+			  return $jzSERVICES->resizeImage("ID3:". $tracks[0]->getDataPath(), $dimensions, false, $imageType);
 			} else {
 			  return "ID3:". $tracks[0]->getDataPath();
 			}

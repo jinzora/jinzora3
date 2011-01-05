@@ -256,7 +256,12 @@
 			$handle = fopen($source, "wb");
 			fwrite($handle,$meta['pic_data']);				
 			fclose($handle);
-			$destination = substr($destination,0,-4). ".". $dimensions. ".jpg";
+			if (sizeof($destination)>=5){
+			   $destination = substr($destination,0,-4). ".". $dimensions. ".jpg";
+			} else {
+			   $destination = substr($destination,0). ".". $dimensions. ".jpg";
+			}
+			
 		}
 		
 		// Let's grab the source image to work with it
