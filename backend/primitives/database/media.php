@@ -1373,7 +1373,11 @@
 		function getPType() {
 			global $sql_type,$sql_pw,$sql_usr,$sql_socket,$sql_db;
 			
-			if ($this->getLevel() == 0) return "root";				
+			if ($this->getLevel() == 0) return "root";
+			if (isset($this->ptype)) {
+			  return $this->ptype;
+			}
+		
 			if (!$link = jz_db_connect())
                 		die ("could not connect to database.");
                 		

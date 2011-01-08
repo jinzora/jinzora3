@@ -79,6 +79,7 @@ function resultsToArray(& $results, $type = false) {
 				$me->playcount = $results->data[$i]['playcount'];
 				$me->dlcount = $results->data[$i]['dlcount'];
 				$me->longdesc = jz_db_unescape($results->data[$i]['longdesc']);
+				$me->ptype = jz_db_unescape($results->data[$i]['ptype']);
 				// Gross hack to follow;
 				// Fixes case where an album is in 2 genres from 1 artist:
 				if ($backend == "id3-database") {
