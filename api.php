@@ -1221,7 +1221,7 @@ function print_lists($results, $format='xml') {
  * Results is an array of nodes and tracks.
  * Prints results in a variety of formats.
  */
-function print_results($results, $format='xml', $trackfields=false, $nodefields=false, $meta=false) {
+function print_results($results, $format='xml', $trackfields=false, $nodefields=false, $queryMeta=false) {
   global $this_site,$api_page; 
   $display = new jzDisplay();
 		$tracks = array();
@@ -1429,8 +1429,8 @@ function print_results($results, $format='xml', $trackfields=false, $nodefields=
 		  }
 
 		  $obj = array('tracks'=>$jt,'nodes'=>$jn);
-		  if ($meta !== false) {
-		    $obj['meta'] = $meta;
+		  if ($queryMeta !== false) {
+		    $obj['meta'] = $queryMeta;
 		  }
 		  if ($format == 'jsonp') {
 		    echo $_GET['jsoncallback'] . '(';
