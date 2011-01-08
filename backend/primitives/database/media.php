@@ -2399,12 +2399,14 @@ function filenameToPath($fp) {
 		* @version 5/14/04
 		* @since 5/14/04
 		*/
-		function getMainArt($dimensions = false, $createBlank = true, $imageType="audio") {
+		function getMainArt($dimensions = false, $createBlank = true, $imageType="audio", $cacheOnly=false) {
 		  global $sql_type,$sql_pw,$sql_usr,$sql_socket,$sql_db,$jzSERVICES;
 		  
 		  $path = jz_db_escape($this->getPath("String"));
 		  if ($this->artpath) {
 		     $results = array('main_art' => $this->artpath);
+		  } else if ($cacheOnly) {
+		    return false;
 		  } else {
 		     $results = jz_db_simple_query("SELECT main_art FROM jz_nodes WHERE path = '$path'");
 		  }
@@ -2429,7 +2431,6 @@ function filenameToPath($fp) {
 		      }
 		    }
 		  }
-		  // inheritance is sweet.
 		  return parent::getMainArt($dimensions,$createBlank, $imageType);
 		}
 		
@@ -3408,11 +3409,17 @@ function filenameToPath($fp) {
 		* @version 5/14/04
 		* @since 5/14/04
 		*/
-		function getMainArt($dimensions = false, $createBlank = true, $imageType="audio") {
+		function getMainArt($dimensions = false, $createBlank = true, $imageType="audio", $cacheOnly = false) {
 		  global $sql_type,$sql_pw,$sql_usr,$sql_socket,$sql_db,$jzSERVICES;
 		  
 		  $path = jz_db_escape($this->getPath("String"));
-		  $results = jz_db_simple_query("SELECT main_art FROM jz_nodes WHERE path = '$path'");
+		  if ($this->artpath) {
+		     $results = array('main_art' => $this->artpath);
+		  } else if ($cacheOnly) {
+		    return false;
+		  } else {
+		     $results = jz_db_simple_query("SELECT main_art FROM jz_nodes WHERE path = '$path'");
+		  }
 		  
 		  if ($results['main_art']) {
 		    // Now let's make create the resized art IF needed
