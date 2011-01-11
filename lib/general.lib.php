@@ -426,7 +426,7 @@
 	 **/
 	function sendFileBundle($myfiles, $name) {
 	  global $multiple_download_mode, $download_speed;
-	
+
 		$files = array();
 		foreach ($myfiles as $file) {
 			if ($file != '' && is_file($file)) {
@@ -722,15 +722,14 @@
 		if (substr($name,0-strlen($ext)-1) != "." . $ext) {
 		  $name .= "." . $ext;
 		}
-		
-		// First are we resampling?
-		// If so no header here
-		if ($resample == ""){
-		  sendContentType($ext);
-		}		
+
+		if ($resample != "") {
+		   $ext = false;
+		}	
+
 		// TODO: resample.
 		// probably make a different streamFile (streamResampled)
-		streamFile($path,$name,false,$resample,$download);
+		streamFile($path,$name,false,$resample,$download, true, $ext);
 	}
 	
 /** 
@@ -762,9 +761,10 @@ function sendID3Image($path,$name,$id3) {
 	 * @version 11/11/04
 	 * @since 11/11/04
 	 */	
-	function streamFile($path,$name,$limit=false,$resample="",$download = false) {
+	function streamFile($path,$name,$limit=false,$resample="",$download = false, $contentTypeFor = false) {
 		global $always_resample, $allow_resample, $always_resample_rate, $jzUSER;
-				
+		
+
 		// Let's ignore if they abort, that way we'll know when the track stops...
 		ignore_user_abort(TRUE);	
 		
@@ -849,22 +849,59 @@ function sendID3Image($path,$name,$id3) {
 			$range_from = 0;
 			$range_to = $size-1;
 		}
-		if ($range === false) {
-		  // Content length has already been sent
-		  header("Content-length: ".(string)$size);
-		} else {
-				header("HTTP/1.1 206 Partial Content");
-				header("Accept-Range: bytes");
-				header("Content-Length: " . ($size - $range_from));
-				header("Content-Range: bytes $range_from" . "-" . ($range_to) . "/$size");
+
+		$ps3 = false;
+		$allheaders = getallheaders();
+		if (isset($allheaders['User-Agent']) && $allheaders['User-Agent'] == "PLAYSTATION 3") {
+		  $ps3 = true;
 		}
-		
-		header("Content-Disposition: inline; filename=\"".$name."\"");
-		header("Expires: ".gmdate("D, d M Y H:i:s", mktime(date("H")+2, date("i"), date("s"), date("m"), date("d"), date("Y")))." GMT");
-		header("Last-Modified: ".gmdate("D, d M Y H:i:s", filemtime($path))." GMT");
-		header("Cache-Control: no-cache, must-revalidate");
-		header("Pragma: no-cache");
-		
+
+		if ($ps3) {
+  		  // ps3 is both picky and buggy.
+		  if ($range_from > $size) {
+		    // Yeah, this happens, and sending a
+		    // 416 Requested Range Not Satisfiable fails.
+		    // This is probably causing our high-latency delays
+		    // but I don't know a better workaround.
+		    header("HTTP/1.1 200 OK");
+		    $range_from = 0;
+		    $range_to = $size - 1;
+		  } else if ($range_from == 0 && $size == $range_to + 1) {
+		    header("HTTP/1.1 200 OK");
+		  } else {
+		    fwrite($f, "PARTIAL $range_from $range_to $size\n");
+  		    header("HTTP/1.1 206 Partial Content");
+		    header("CONTENT-RANGE: bytes ${range_from}-${range_to}/${size}");
+		  }
+
+		  header("transferMode.dlna.org: Streaming");
+		  header("contentFeatures.dlna.org: DLNA.ORG_OP=01;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=017000 00000000000000000000000000");
+		  header("Accept-Ranges: bytes");
+		  header("Connection: keep-alive");
+		  header("Content-Length: " . $size - $range_from);
+		  
+		} else if ($range === false) {
+		  // Content length has already been sent
+		  header("Content-Length: ".(string)$size);
+		} else {
+			header("HTTP/1.1 206 Partial Content");
+			header("Accept-Range: bytes");
+			header("Content-Length: " . ($size - $range_from));
+			header("Content-Range: bytes $range_from" . "-" . ($range_to) . "/$size");
+		}
+
+		if ($contentTypeFor !== false) {
+		  sendContentType($contentTypeFor);
+		}
+
+		if (!$ps3) {
+		  header("Content-Disposition: inline; filename=\"".$name."\"");
+		  header("Expires: ".gmdate("D, d M Y H:i:s", mktime(date("H")+2, date("i"), date("s"), date("m"), date("d"), date("Y")))." GMT");
+		  header("Last-Modified: ".gmdate("D, d M Y H:i:s", filemtime($path))." GMT");
+		  header("Cache-Control: no-cache, must-revalidate");
+		  header("Pragma: no-cache");
+		}
+
 		if ($file = fopen($path, 'rb')) {
 		  @set_time_limit(0);
 		  fseek($file, $range_from);				
