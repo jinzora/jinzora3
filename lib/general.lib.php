@@ -857,19 +857,22 @@ function sendID3Image($path,$name,$id3) {
 		}
 
 		if ($ps3) {
-  		  // ps3 is both picky and buggy.
+  		  // ps3 is picky and bizarre.
+		  
 		  if ($range_from > $size) {
-		    // Yeah, this happens, and sending a
+		    // This happens if the ps3 thinks the file
+		    // is larger than it is, and sending a
 		    // 416 Requested Range Not Satisfiable fails.
-		    // This is probably causing our high-latency delays
-		    // but I don't know a better workaround.
-		    header("HTTP/1.1 200 OK");
+		    
+		    // This is supposed to be a read of the id3v1 tag at
+		    // the end of a file (127 bytes).
 		    $range_from = 0;
 		    $range_to = $size - 1;
+		    header("HTTP/1.1 200 OK");
 		  } else if ($range_from == 0 && $size == $range_to + 1) {
 		    header("HTTP/1.1 200 OK");
 		  } else {
-  		    header("HTTP/1.1 206 Partial Content");
+  		    header("HTTP/1.1 206 Partial content");
 		    header("CONTENT-RANGE: bytes ${range_from}-${range_to}/${size}");
 		  }
 
@@ -877,7 +880,7 @@ function sendID3Image($path,$name,$id3) {
 		  header("contentFeatures.dlna.org: DLNA.ORG_OP=01;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=017000 00000000000000000000000000");
 		  header("Accept-Ranges: bytes");
 		  header("Connection: keep-alive");
-		  header("Content-Length: " . $size - $range_from);
+		  header("Content-Length: " . ($size - $range_from));
 		  
 		} else if ($range === false) {
 		  // Content length has already been sent
