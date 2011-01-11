@@ -869,7 +869,6 @@ function sendID3Image($path,$name,$id3) {
 		  } else if ($range_from == 0 && $size == $range_to + 1) {
 		    header("HTTP/1.1 200 OK");
 		  } else {
-		    fwrite($f, "PARTIAL $range_from $range_to $size\n");
   		    header("HTTP/1.1 206 Partial Content");
 		    header("CONTENT-RANGE: bytes ${range_from}-${range_to}/${size}");
 		  }
