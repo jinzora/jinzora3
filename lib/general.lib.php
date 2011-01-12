@@ -858,17 +858,17 @@ function sendID3Image($path,$name,$id3) {
 
 		if ($ps3) {
   		  // ps3 is picky and bizarre.
-		  
 		  if ($range_from > $size) {
 		    // This happens if the ps3 thinks the file
 		    // is larger than it is, and sending a
-		    // 416 Requested Range Not Satisfiable fails.
 		    
 		    // This is supposed to be a read of the id3v1 tag at
-		    // the end of a file (127 bytes).
-		    $range_from = 0;
+		    // the end of a file (128 bytes), or the lyrics tag
+		    // (138 bytes)
+		    $requested = $range_to - $range_from + 1;
+		    $range_from = $size - $requested;
 		    $range_to = $size - 1;
-		    header("HTTP/1.1 200 OK");
+		    header("HTTP/1.1 206 Partial content");
 		  } else if ($range_from == 0 && $size == $range_to + 1) {
 		    header("HTTP/1.1 200 OK");
 		  } else {
