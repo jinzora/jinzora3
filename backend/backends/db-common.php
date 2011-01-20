@@ -95,7 +95,7 @@ function resultsToArray(& $results, $type = false) {
 			  $track = & new jzMediaTrack(jz_db_unescape($r['path']));
 			  
 			  // we never query for just bitrate, so if it's returned, we have all meta.
-			  if (isset($r['bitrate'])) {
+			  if (isset($r['bitrate']) && $r['bitrate'] != '-') {
 			    $meta = array();
 			    $meta['title'] = jz_db_unescape($r['trackname']);
 			    $meta['bitrate'] = jz_db_unescape($r['bitrate']);
