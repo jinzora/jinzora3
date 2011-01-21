@@ -2159,7 +2159,7 @@
 		  
 		  $onclick = 'submitPlaybackForm(document.getElementById(\''.$label.'\'), \'' . htmlentities($this_page)  . '\')';
 		  
-		  $retVal .= icon('download',array( 'title'=> word('Play Random'),
+		  $retVal .= icon('download',array( 'title'=> word('Download Playlist'),
 						  'onclick'=> $onclick
 						  )
 				  );
@@ -2187,7 +2187,7 @@
 		  
 		  $onclick = 'submitPlaybackForm(document.getElementById(\''.$label.'\'), \'' . htmlentities($this_page)  . '\')';
 
-		  $retVal .= icon('add',array( 'title'=> word('Play Random'),
+		  $retVal .= icon('add',array( 'title'=> word('Create Playlist'),
 						  'onclick'=> $onclick
 						  )
 				  );
