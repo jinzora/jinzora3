@@ -247,7 +247,13 @@
 					$jzSERVICES->loadStandardServices();
 				}
 				// Let's setup our tagdata service and return the tag data			
-				$meta = $jzSERVICES->getTagData($fname, $installer); 
+				$meta = $jzSERVICES->getTagData($fname, $installer);
+
+				// Hack to fix bug where first track returns null metadata.
+				if ($meta['bitrate'] == '-') {
+				  // try again.
+				  $meta = $jzSERVICES->getTagData($fname, $installer);
+				}
 			}
 			return $meta;
 		}
