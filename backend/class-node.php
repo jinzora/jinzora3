@@ -1243,6 +1243,12 @@
 					$res->playpath =  $filename;
 				}
 			}
+			else if (is_array($meta) && sizeof($meta) > 0) {
+			  // Update the meta data even if file is already in cache
+			  $track = &new jzMediaTrack($mpath);
+			  $track->playpath = $fullpath;
+			  $track->setMeta($meta,"cache");
+			}
 			return $res;
 		}
 	

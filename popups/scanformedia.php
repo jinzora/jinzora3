@@ -51,7 +51,7 @@ if (!isset ($_POST['edit_scan_now'])) {
 
 	}
 ?>
-                                <input name="edit_force_scan" value="true" type="checkbox"> <?php echo word("Ignore file modification times (slow)"); ?><br>
+                                <input name="edit_force_scan" value="true" type="checkbox"> <?php echo word("Re-read tag data (slow)"); ?><br>
 				<br>
 				&nbsp; &nbsp; &nbsp; <input type="submit" name="edit_scan_now" value="<?php echo word("Scan Now"); ?>" class="jz_submit">
 			</form>		
