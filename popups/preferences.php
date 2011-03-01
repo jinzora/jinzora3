@@ -1,5 +1,5 @@
 <?php if (!defined(JZ_SECURE_ACCESS)) die('Security breach detected.');
-global $include_path, $jzUSER, $jzSERVICES, $cms_mode, $enable_audioscrobbler, $as_override_user, $as_override_all;
+global $include_path, $jzUSER, $jzSERVICES, $cms_mode, $enable_audioscrobbler, $as_override_user, $as_override_all, $allow_lang_choice, $allow_interface_choice, $allow_style_choice;
 
 $this->displayPageTop("", word("User Preferences"));
 $this->openBlock();
@@ -15,9 +15,15 @@ if (isset ($_POST['update_settings'])) {
 	$arr = array ();
 	$arr['email'] = $_POST['email'];
 	$arr['fullname'] = $_POST['fullname'];
-	$arr['frontend'] = $_POST['def_interface'];
-	$arr['theme'] = $_POST['def_theme'];
-	$arr['language'] = $_POST['def_language'];
+	if ($allow_interface_choice == "true") {
+	  $arr['frontend'] = $_POST['def_interface'];
+	}
+	if ($allow_style_choice == "true") {
+	  $arr['theme'] = $_POST['def_theme'];
+	}
+	if ($allow_lang_choice == "true") {
+	  $arr['language'] = $_POST['def_language'];
+	}
 	$arr['playlist_type'] = $_POST['pltype'];
 	$arr['asuser'] = $_POST['asuser'];
 	$arr['aspass'] = $_POST['aspass'];
@@ -59,7 +65,9 @@ echo '<form action="' . urlize($url_array) . '" method="POST">';
 				<input type="password" name="field1" class="jz_input" value="jznoupd"><br>
 				<input type="password" name="field2" class="jz_input" value="jznoupd">
 			</td>
-		</tr><?php } else { ?> <input type="hidden" name="field1" value="jznoupd"> <?php } ?>
+		</tr><?php } else { ?>
+				<input type="hidden" name="field1" value="jznoupd">
+				<input type="hidden" name="field2" value="jznoupd"> <?php } ?>
 		<tr>
 			<td width="30%" valign="top" align="right">
 				<?php echo word("Full Name"); ?>:
@@ -102,6 +110,7 @@ if ($enable_audioscrobbler == "true" and ($as_override_user == "" or $as_overrid
 				<?php
 
 }
+if ($allow_interface_choice == "true") {
 ?>
 		
 		
@@ -127,6 +136,10 @@ for ($i = 0; $i < count($retArray); $i++) {
 				</select>
 			</td>
 		</tr>
+<?php
+}
+if ($allow_style_choice == "true") {
+?>
 		<tr>
 			<td width="30%" valign="top" align="right">
 				<?php echo word("Theme"); ?>:
@@ -152,6 +165,10 @@ for ($i = 0; $i < count($retArray); $i++) {
 				</select>
 			</td>
 		</tr>
+<?php
+}
+if ($allow_lang_choice == "true") {
+?>
 		<tr>
 			<td width="30%" valign="top" align="right">
 				<?php echo word("Language"); ?>:
@@ -173,7 +190,9 @@ for ($i = 0; $i < count($languages); $i++) {
 				</select>
 			</td>
 		</tr>
-				    <tr>
+<?php
+}
+?>				    <tr>
 			<td width="30%" valign="top" align="right">
 				<?php echo word("Playlist Type"); ?>:
 			</td>
