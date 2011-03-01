@@ -128,10 +128,17 @@ if ($_GET['subaction'] == "handleuser") {
 			} 
 		}
 		if (!isset($myid)) {
-        	// okay, yes,  this is the worst piece of code in Jinzora.
-            $myid = $jzUSER->lookupUID(NOBODY);
-        }
-		
+		  // okay, yes,  this is the worst piece of code in Jinzora.
+		  $myid = $jzUSER->lookupUID(NOBODY);
+		}
+		if($myid == false) {
+		  // need to add NOBODY
+		  $myid = $jzUSER->addUser(NOBODY, "");
+		  if($myid == false) {
+		    echo word("Could not add user") . " " . word('Anonymous') . ".";
+		    return;
+		  }
+		}
 		if ($_POST['field1'] != "jznoupd") {
 			// update password
 			$jzUSER->changePassword($_POST['field1'], $jzUSER->lookupName($myid));
@@ -142,20 +149,7 @@ if ($_GET['subaction'] == "handleuser") {
 		}
 	}
 	$wipe = false;
-	// DETACH
-	if ($_POST['templatetype'] == "detach") {
-		if ($_POST['userclass'] == "jznewtemplate") {
-			echo "Cannot base a user only on a blank template.";
-			return;
-		} else {
-			$classes = $be->loadData('userclasses');
-			$settings = $classes[$_POST['userclass']];
-			$settings['template'] = "";
-			$wipe = true;
-		}
-		// STICKY
-	} else
-		if ($_POST['templatetype'] == "sticky") {
+	if ($_POST['templatetype'] == "sticky") {
 			if ($_POST['userclass'] == "jznewtemplate") {
 				echo "Cannot stick user to a blank template.";
 				return;
@@ -165,7 +159,7 @@ if ($_GET['subaction'] == "handleuser") {
 				$wipe = true;
 			}
 			// CUSTOMIZE
-		} else
+	} else {
 			if ($_POST['templatetype'] == "customize") {
 				$settings = userPullSettings();
 				$settings['template'] = "";
@@ -173,8 +167,9 @@ if ($_GET['subaction'] == "handleuser") {
 				echo "Sorry, I don't know how to manage the user.";
 				return;
 			}
+	}
 
-	$un = ($_POST['username'] != "") ? $_POST['username'] : word('anonymous');
+	$un = ($_POST['username'] != NOBODY) ? $_POST['username'] : word('Anonymous');
 	if (isset($settings['home_dir'])) {
 		$settings['home_dir'] = str_replace('USERNAME', $un, $settings['home_dir']);
 	}
@@ -368,7 +363,16 @@ if ($_GET['subaction'] == "registration") {
 // * * * * * * * * //
 if ($_GET['subaction'] == "default_access") {
 	$_GET['subaction'] = "edituser";
-	$_POST['user_to_edit'] = $jzUSER->lookupUID(NOBODY);
+	$myid = $jzUSER->lookupUID(NOBODY);
+	if ($myid == "" || $myid == false) {
+	  // need to add NOBODY
+	  $myid = $jzUSER->addUser(NOBODY, "");
+	  if ($myid == false) {
+	    echo word("Could not add user") . " " . word('Anonymous') . ".";
+	    return;
+	  }
+	}
+	$_POST['user_to_edit'] = $myid;
 }
 
 // * * * * * * * * //
@@ -514,7 +518,9 @@ if ($_GET['subaction'] == "adduser") {
 }
 ?>
 			 </td>
-			 </tr><?php } else { ?> <input type="hidden" name="field1" value="jznoupd"> <?php } ?>
+			 </tr><?php } else { ?>
+			   <input type="hidden" name="field1" value="jznoupd">
+			   <input type="hidden" name="field2" value="jznoupd"> <?php } ?>
 			 <tr>
 			 <td width="30%" valign="top" align="right">
 			 <?php echo word("Full Name"); ?>:
@@ -533,10 +539,11 @@ if ($_GET['subaction'] == "adduser") {
 			 </tr>
 			 <?php
 
-}
-?>
-
-
+} else { ?>
+<input type="hidden" name="field1" value="jznoupd">
+<input type="hidden" name="field2" value="jznoupd">
+<input type="hidden" name="username" value="<?php echo NOBODY; ?>">
+<?php } ?>
 			 <tr>
 			    <td width-"30%" valign="top" align="right">
 			    <?php echo word("Template:"); ?>
@@ -570,9 +577,6 @@ if (is_array($classes)) {
 		          <input type="radio" name="templatetype" value="sticky"><?php echo word('Update user when template is updated'); ?>
 			  </td></tr>
 			  <tr><td></td><td>
-		          <!--<input type="radio" name="templatetype" value="detach"><?php echo word('Detach user from template'); ?>
-			  </td></tr>
-			  <tr><td></td><td>-->
 			  <input type="radio" name="templatetype" value="customize" checked><?php echo word("Customize this user's settings"); ?>
 			  </td></tr>
 			  <tr>

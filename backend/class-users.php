@@ -143,9 +143,8 @@
 				$this->data_dir = $be->data_dir;
 				$this->settings = false;
 				if (($this->id = $this->lookupUID('NOBODY')) === false) {
-				  $this->addUser('NOBODY',"");
+				  $this->id = $this->addUser('NOBODY',"");
 				}
-				$this->name = 'NOBODY';
 				$this->loadSettings();
 			}
 			// Give them a session playlist, too.
@@ -276,8 +275,11 @@
 				$users[$user]['password'] = jz_password($password);
 				$users[$user]['id'] = $my_id = uniqid("USR");
 			}
+			writeLogData("access", "Adding user '".$user."'");
 			$settings = array();
-			$settings['name'] = $user;
+			if ($user != NOBODY) {
+			  $settings['name'] = $user;
+			}
 			$this->setSettings($settings,$my_id);
 			
 			if (!$handle = @fopen($dp,"w")) {
@@ -562,7 +564,15 @@
 				$settings = $s[$id];
 				// Is the login invalid?		
 				if (!is_array($settings) || $settings == array()) {
-				  return $this->loadSettings($this->lookupUID(NOBODY));
+				  // fetch NOBODY's details
+				  $nobody = $this->lookupUID(NOBODY);
+				  if ($nobody != false) {
+				    $settings = $s[$nobody];
+				  }
+				  if (!is_array($settings)) {
+				    $settings = array();
+				  }
+				  $s[$id] = $settings;
 				}
 
 				if (isset($settings['template']) && $settings['template'] != "") {
@@ -624,8 +634,9 @@
 		 * @author Ben Dodson
 		 * @param $settingsArray an associative array of keys/values
 		 */
-		function setSettings($settingsArray, $id = false, $wipe = false) {
-			if ($id === false) $id = $this->id;
+		function setSettings($settingsArray, $my_id = false, $wipe = false) {
+			if ($my_id === false) $id = $this->id;
+			else $id = $my_id;
 		
 			if (!$wipe) {
 				$oldsettings = $this->loadSettings($id);
@@ -662,7 +673,7 @@
 			  } else {
 			    $oldsettings[$key] = $val;
 			  }
-			  if (isset($this->settings)) {
+			  if (isset($this->settings) && $my_id === false) {
 			    $this->settings[$key] = $oldsettings[$key];
 			  }
 			}
