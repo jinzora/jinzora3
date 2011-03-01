@@ -311,8 +311,8 @@
 		} else {
 			$meta['comment'] = "";
 		}
-		if (!empty($fileInfo['tags']['id3v2']['unsynchronised lyric'][0])) {
-			$meta['lyrics'] = $fileInfo['tags']['id3v2']['unsynchronised lyric'][0];
+		if (!empty($fileInfo['tags']['id3v2']['unsynchronised_lyric'][0])) {
+			$meta['lyrics'] = $fileInfo['tags']['id3v2']['unsynchronised_lyric'][0];
 		} else {
 			$meta['lyrics'] = "";
 		}
