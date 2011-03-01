@@ -200,8 +200,11 @@
 			  return false;
 			}
 			$users = unserialize($f);
-			
-			return (isset($users[$user]['id'])) ? $users[$user]['id'] : false;
+			if (isset($users[$user]) && is_array($users[$user])
+			    && isset($users[$user]['id'])) {
+			  return $users[$user]['id'];
+			}
+			return false;
 		}
 		
 
@@ -511,7 +514,7 @@
 		 * @author Ben Dodson
 		 * @param $setting the setting to retrieve.
 		 */
-		function getSetting($setting) {
+		function getSetting($setting, $recursive = false) {
 		  global $USER_SETTINGS_OVERRIDE;
 		  // some overrides:
 		  if ($setting == "theme" && isset($_SESSION['theme'])) {
@@ -532,10 +535,11 @@
 		    }
 		    if (isset($this->settings[$setting])) return $this->settings[$setting];
 		    else return user_default($setting);
-		  }
-		  else {
-		    $this->loadSettings(); echo 'here';
-		    return $this->getSetting($setting);
+		  } else if ($recursive == true) {
+		    return user_default($setting);
+		  } else {
+		    $this->loadSettings();
+		    return $this->getSetting($setting, true);
 		  }
 		}
 		
