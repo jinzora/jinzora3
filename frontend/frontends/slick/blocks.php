@@ -197,7 +197,7 @@
 		**/
 		function blockOptions($node){
 			global $jzUSER, $show_options, $enable_ratings, $enable_discussion, $allow_interface_choice, 
-						 $allow_language_choice, $allow_style_choice, $this_page;	
+						 $allow_lang_choice, $allow_style_choice, $this_page;	
 			
 			if ($show_options <> "true"){return;}
 			
@@ -211,7 +211,7 @@
 			$smarty->assign('enable_discussion', $enable_discussion);
 			$smarty->assign('enable_ratings', $enable_ratings);
 			$smarty->assign('allow_interface_choice', $allow_interface_choice);
-			$smarty->assign('allow_lang_choice', $allow_language_choice);
+			$smarty->assign('allow_lang_choice', $allow_lang_choice);
 			$smarty->assign('allow_style_choice', $allow_style_choice);
 			$smarty->assign('word_options', word("Options"));
 			if ($jzUSER->getSetting('stream') and ($enable_discussion == "true" or $enable_ratings == "true")){

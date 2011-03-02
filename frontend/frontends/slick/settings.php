@@ -3,9 +3,6 @@
 	$disable_leftbar = "false";
 	$cols_in_genre = "3";
 	$max_song_name_length = "30";
-	$allow_interface_choice = "true";
-	$allow_style_choice = "true";
-	$allow_language_choice = "true";
 	$show_similar = "true";
 	$show_radio = "true";
 	$show_sampler = "true";

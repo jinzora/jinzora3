@@ -30,7 +30,6 @@
 	}
 	sortElements($retArray,"name");
 	
-	$args = func_get_args();
 	if (isset($_GET['jz_letter'])) {
 		$letter = $_GET['jz_letter'];
 	} else {
