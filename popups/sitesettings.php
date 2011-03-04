@@ -162,6 +162,7 @@
 	      $display->settingsDropdown("allow_lang_choice","allow_lang_choice",array("true","false"),$settings_array);
 	      $display->settingsDropdown("allow_style_choice","allow_style_choice",array("true","false"),$settings_array);
 	      $display->settingsDropdown("allow_interface_choice","allow_interface_choice",array("true","false"),$settings_array);
+	      $display->settingsDropdown("allow_player_choice","allow_player_choice",array("false","true"),$settings_array);
 	      $display->settingsDropdown("use_ext_playlists","use_ext_playlists",array("true","false"),$settings_array);
 	      $display->settingsDropdown("show_page_load_time","show_page_load_time",array("true","false"),$settings_array);
 	      $display->settingsDropdown("show_sub_numbers","show_sub_numbers",array("true","false"),$settings_array);

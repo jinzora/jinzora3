@@ -1,5 +1,5 @@
 <?php if (!defined(JZ_SECURE_ACCESS)) die('Security breach detected.');
-global $include_path, $jzUSER, $jzSERVICES, $cms_mode, $enable_audioscrobbler, $as_override_user, $as_override_all, $http_auth_enable, $allow_lang_choice, $allow_interface_choice, $allow_style_choice;
+global $include_path, $jzUSER, $jzSERVICES, $cms_mode, $enable_audioscrobbler, $as_override_user, $as_override_all, $http_auth_enable, $allow_lang_choice, $allow_interface_choice, $allow_style_choice, $allow_player_choice;
 
 $this->displayPageTop("", word("User Preferences"));
 $this->openBlock();
@@ -25,6 +25,9 @@ if (isset ($_POST['update_settings'])) {
 	  $arr['language'] = $_POST['def_language'];
 	}
 	$arr['playlist_type'] = $_POST['pltype'];
+	if ($allow_player_choice == "true") {
+	  $arr['player'] = $_POST['def_player'];
+	}
 	$arr['asuser'] = $_POST['asuser'];
 	$arr['aspass'] = $_POST['aspass'];
 	$jzUSER->setSettings($arr);
@@ -200,7 +203,38 @@ for ($i = 0; $i < count($languages); $i++) {
 		</tr>
 <?php
 }
-?>				    <tr>
+if ($allow_player_choice == "true") {
+?>
+		<tr>
+			<td width="30%" valign="top" align="right">
+				<?php echo word("External Player"); ?>:
+			</td>
+			<td width="70%">
+				<select name="def_player" class="jz_select" style="width:135px;">
+				<option value=""> - </option>
+<?php
+
+// Let's get all the players
+$retArray = readDirInfo($include_path . "services/services/players", "file");
+sort($retArray);
+for ($i = 0; $i < count($retArray); $i++) {
+  if (stripos(strrev($retArray[$i]),"php.") !== 0) {continue;}
+  $val = substr($retArray[$i],0,-4);
+  if ($val == "qt") {continue;}
+  echo '<option ';
+  if ($val == $jzUSER->getSetting('player')) {
+    echo 'selected ';
+  }
+  echo 'value="' . $val . '">' . $val . "</option>\n";
+}
+?>
+				</select>
+			</td>
+		</tr>
+<?php
+}
+?>
+				    <tr>
 			<td width="30%" valign="top" align="right">
 				<?php echo word("Playlist Type"); ?>:
 			</td>

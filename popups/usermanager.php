@@ -967,8 +967,9 @@ $this->closeBlock();
 								$retArray = readDirInfo($include_path. "services/services/players","file");
 								sort($retArray);
 								for($i=0;$i<count($retArray);$i++){
-									if (!stristr($retArray[$i],".php") and !stristr($retArray[$i],"qt.")){continue;}
+									if (stripos(strrev($retArray[$i]),"php.") !== 0) {continue;}
 									$val = substr($retArray[$i],0,-4);
+									if ($val == "qt") {continue;}
 									echo '<option value="'. $val. '"';
 									if ($settings['player'] == $val) {
 									  echo ' selected';
