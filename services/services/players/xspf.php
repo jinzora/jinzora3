@@ -33,7 +33,7 @@
 	* @since 8/23/05
 	*/
 	function SERVICE_RETURN_PLAYER_WIDTH_xspf(){
-	  return 300;
+	  return 440;
 	}
 
 	/**
@@ -44,7 +44,7 @@
 	* @since 8/23/05
 	*/
 	function SERVICE_RETURN_PLAYER_HEIGHT_xspf(){
-	  return 150;
+	  return 205;
 	}
 
 	
@@ -57,7 +57,7 @@
 	* @param $formname The name of the form that is being created
 	*/
 	function SERVICE_RETURN_PLAYER_FORM_LINK_xspf($formname){
-		return "document.". $formname. ".target='embeddedPlayer'; openMediaPlayer('', 300, 150);";
+		return "document.". $formname. ".target='embeddedPlayer'; openMediaPlayer('', 440, 205);";
 	}
 	
 	
@@ -69,7 +69,7 @@
 	* @since 06/05/05
 	*/
 	function SERVICE_RETURN_PLAYER_HREF_xspf(){
-		return ' target="embeddedPlayer" onclick="openMediaPlayer(this.href, 300, 150); return false;"';
+		return ' target="embeddedPlayer" onclick="openMediaPlayer(this.href, 440, 205); return false;"';
 	}
 	
 
@@ -96,7 +96,7 @@
 		       $d->displayJavascript();
 		       ?>
 		       <script type="text/javascript">
-			 win=openMediaPlayer(window.location, 300, 150);
+			 win=openMediaPlayer(window.location, <?php echo $width; ?>, <?php echo $height; ?>);
 		       if (win) {
 			 //self.close();
 
@@ -112,7 +112,7 @@
 		     }
 		?>
 		<SCRIPT LANGUAGE=JAVASCRIPT TYPE="TEXT/JAVASCRIPT"><!--\
-		   if (window.name == 'embeddedPlayer' && window.innerWidth != <?php echo $width ?>) {
+		   if (window.name == 'embeddedPlayer' && (window.innerWidth != <?php echo $width ?> || window.innerHeight != <?php echo $height ?>) ) {
 		  window.resizeTo(<?php echo $width; ?>,<?php echo $height; ?>)
 		}
 		
