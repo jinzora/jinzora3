@@ -560,17 +560,24 @@ if ($_GET['subaction'] == "adduser") {
 			    <td width="70%">
 						<?php
 
-echo '<select name="userclass" class="jz_select">';
-echo "<option value=\"jznewtemplate\">" . word('Blank Template');
 $classes = $be->loadData('userclasses');
+$t = 'jznewtemplate';
 if (is_array($classes)) {
-	$keys = array_keys($classes);
 	$set = $jzUSER2->loadSettings();
 	if (isset ($set['template'])) {
 		$t = $set['template'];
-	} else {
-		$t = $keys[0];
 	}
+}
+echo '<select name="userclass" class="jz_select">';
+if ($t == 'jznewtemplate') {
+  echo "<option value=\"jznewtemplate\" SELECTED>";
+}
+else {
+  echo "<option value=\"jznewtemplate\">";
+}
+echo word('Blank Template');
+if (is_array($classes)) {
+	$keys = array_keys($classes);
 	foreach ($keys as $key) {
 		echo "<option value=\"$key\"";
 		if ($key == $t) {
@@ -583,10 +590,10 @@ if (is_array($classes)) {
 		      </select>
 			  </td></tr>
 			  <tr><td width="30%" valign="top" align="right"><?php echo word('Management:'); ?></td><td>
-		          <input type="radio" name="templatetype" value="sticky"><?php echo word('Update user when template is updated'); ?>
+		          <input type="radio" name="templatetype" value="sticky"<?php if ($jzUSER2->getSetting('template')) echo " checked>"; else echo ">"; echo word('Update user when template is updated'); ?>
 			  </td></tr>
 			  <tr><td></td><td>
-			  <input type="radio" name="templatetype" value="customize" checked><?php echo word("Customize this user's settings"); ?>
+			  <input type="radio" name="templatetype" value="customize"<?php if ($jzUSER2->getSetting('template')) echo ">"; else echo " checked>"; echo word("Customize this user's settings"); ?>
 			  </td></tr>
 			  <tr>
 			  <td width="30%" valign="top">
