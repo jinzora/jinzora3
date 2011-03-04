@@ -48,6 +48,7 @@ if (isset ($_POST['update_settings'])) {
 			</SCRIPT>
 		<?php
 
+	echo word("Preferences saved");
 
 	//$this->closeWindow(true);
 	//return;
