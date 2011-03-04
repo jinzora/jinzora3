@@ -1,5 +1,5 @@
 <?php if (!defined(JZ_SECURE_ACCESS)) die('Security breach detected.');
-global $include_path, $jzUSER, $jzSERVICES, $cms_mode, $enable_audioscrobbler, $as_override_user, $as_override_all, $allow_lang_choice, $allow_interface_choice, $allow_style_choice;
+global $include_path, $jzUSER, $jzSERVICES, $cms_mode, $enable_audioscrobbler, $as_override_user, $as_override_all, $http_auth_enable, $allow_lang_choice, $allow_interface_choice, $allow_style_choice;
 
 $this->displayPageTop("", word("User Preferences"));
 $this->openBlock();
@@ -50,13 +50,21 @@ if (isset ($_POST['update_settings'])) {
 	//return;
 }
 
+if (isset($http_auth_enable) && $http_auth_enable == "true") {
+  $edit_pwd = false;  
+} else if ($cms_mode == "false") {
+  $edit_pwd = true;
+} else {
+  $edit_pwd = false;
+}
+
 $url_array = array ();
 $url_array['action'] = "popup";
 $url_array['ptype'] = "preferences";
 echo '<form action="' . urlize($url_array) . '" method="POST">';
 ?>
 	<table width="100%" cellpadding="3">
-<?php	if ($cms_mode == "false") { ?>
+<?php	if ($edit_pwd == true) { ?>
 		<tr>
 			<td width="30%" valign="top" align="right">
 				<?php echo word("Password"); ?>:

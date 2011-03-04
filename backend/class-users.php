@@ -117,7 +117,7 @@
 		}
 		
 		function _constructor($login, $uid) {
-		  global $include_path;
+		  global $include_path, $http_auth_enable;
 			
 		  if ($login === false) {
 		    $be = &new jzBackend();
@@ -130,7 +130,11 @@
 		  }
 
 			$be = &new jzBackend();
-			if (isset($_SESSION['jzUserID'])) {
+			if (isset($http_auth_enable) && $http_auth_enable == "true") {
+				$this->data_dir = $be->data_dir;
+				$this->setHTTPAuthUser();
+				$this->loadSettings();
+			} else if (isset($_SESSION['jzUserID'])) {
 				$this->id = jz_cookie_decode($_SESSION['jzUserID']);
 				$this->data_dir = $be->data_dir;
 				$this->loadSettings();
@@ -884,6 +888,50 @@
 	    		}
 	 		 }
 	 		 return false;
+		}
+
+		function setHTTPAuthUser() {
+		  global $http_auth_anon_name, $http_auth_auto_create, $http_auth_newuser_template;
+		  
+		  if (isset($_SERVER['REMOTE_USER'])) {
+		    $username = $_SERVER['REMOTE_USER'];
+		  } else {
+		    $username = NOBODY;
+		  }
+		  
+		  if (isset($http_auth_anon_name) && $username == $http_auth_anon_name) {
+		    $username = NOBODY;
+		  }
+		  
+		  if (($this->id = $this->lookupUID($username)) != false) {
+		    return;
+		  }
+		  
+		  if (isset($http_auth_auto_create) && $http_auth_auto_create == "true" && $username != NOBODY) {
+		    // auto-create the user w/ random password
+		    $this->id = $this->addUser($username,uniqid('P'));
+		  }
+		  
+		  if($this->id != false) {
+		    writeLogData("access", "created user entry for user '".$username."'");
+		    if (isset($http_auth_newuser_template) && $http_auth_newuser_template != "") {
+		      $be = new jzBackend();
+		      $classes = $be->loadData('userclasses');
+		      if(isset($classes[$http_auth_newuser_template])) {
+			$settings = array();
+			$settings['template'] = $http_auth_newuser_template;
+			$this->setSettings($settings, $this->id, true);
+		      }
+		    }
+		    
+		    return;
+		  }
+		  
+		  // convert user to nobody
+		  if (($this->id = $this->lookupUID(NOBODY)) === false) {
+		    // create NOBODY
+		    $this->id = $this->addUser(NOBODY,"");
+		  }
 		}
 	}
 	

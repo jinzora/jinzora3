@@ -118,6 +118,8 @@
 	      echo '<a href="'.urlize($urla).'">'.word("Email") . "</a> | ";
 	      $urla['subsubpage'] = "keywords";
 	      echo '<a href="'.urlize($urla).'">'.word("Keywords") . "</a> | ";
+	      $urla['subsubpage'] = "extauth";
+	      echo '<a href="'.urlize($urla).'">'.word("External Auth") . "</a> | ";
 	      echo "</center><br>";
 
 	      if (isset($_POST['update_postsettings'])) {
@@ -269,6 +271,14 @@
 	      $display->settingsTextbox("keyword_lyrics","keyword_lyrics",$settings_array);
 	      $display->settingsTextbox("keyword_limit","keyword_limit",$settings_array);
 	      $display->settingsTextbox("keyword_id","keyword_id",$settings_array);
+	      break;
+	    case "extauth":
+	      $display->settingsDropdown(word("Enable REMOTE_USER"),"http_auth_enable",array("false","true"),$settings_array);
+	      $display->settingsTextbox(word("Anonymous REMOTE_USER"),"http_auth_anon_name",$settings_array);
+	      $display->settingsDropdown(word("Auto-Create New Users"),"http_auth_auto_create",array("true","false"),$settings_array);
+	      $be = new jzBackend();
+	      $keys = array_keys($be->loadData('userclasses'));
+	      $display->settingsDropdown(word("New User Template:"),'http_auth_newuser_template',$keys,$settings_array);
 	      break;
 	    default:
 	      $this->closeBlock();

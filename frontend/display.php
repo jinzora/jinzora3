@@ -2207,7 +2207,15 @@
 		 *
 		 */
 		function loginLink($logintext = false, $logouttext = false, $registration = true, $regtext = false, $return_link = false) {
-		  global $jzUSER;
+		  global $jzUSER, $http_auth_enable;
+
+		  if (isset($http_auth_enable) && $http_auth_enable == "true") {
+		    if ($return_link) {
+		      return "";
+		    } else {
+		      return;
+		    }
+		  }
 
 		  $array = array();
 		  if ($jzUSER->getID() == $jzUSER->lookupUID('NOBODY')) {

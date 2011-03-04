@@ -1,5 +1,5 @@
 <?php if (!defined(JZ_SECURE_ACCESS)) die ('Security breach detected.');
-global $resampleRates, $frontend, $jinzora_skin, $include_path, $jzUSER, $jzSERVICES, $cms_mode;
+global $resampleRates, $frontend, $jinzora_skin, $include_path, $jzUSER, $jzSERVICES, $cms_mode, $http_auth_enable;
 
 $display = new jzDisplay();
 $be = new jzBackend();
@@ -457,6 +457,15 @@ if (!isset ($_POST['user_to_edit'])) {
 	}
 }
 
+if (isset($http_auth_enable) && $http_auth_enable == "true") {
+  $edit_pwd = false;  
+} else if ($cms_mode == "false") {
+  $edit_pwd = true;
+} else {
+  $edit_pwd = false;
+}
+
+
 $jzUSER2 = new jzUser(false, $mid);
 
 if ($_GET['subaction'] == "adduser") {
@@ -495,7 +504,7 @@ if ($_GET['subaction'] == "adduser") {
 }
 ?>
 			 </td>
-			 </tr><?php if ($cms_mode == "false") { ?>
+			 </tr><?php if ($edit_pwd == true) { ?>
 			 <tr>
 			 <td width="30%" valign="top" align="right">
 			 <?php echo word("Password"); ?>:

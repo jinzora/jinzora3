@@ -14,8 +14,9 @@
 		</strong>
 		<br />
 		{$login_link}
+		{if $edit_prefs == true && $login_link != ""} | {/if}
 		{if $edit_prefs == true}
-			| <a onclick="openPopup(this, 300, 350, true, 'Preferences'); return false;" href="{$pref_link}">Prefs</a>
+			<a onclick="openPopup(this, 300, 350, true, 'Preferences'); return false;" href="{$pref_link}">Prefs</a>
 		{/if}
 	</div>
 </div>
