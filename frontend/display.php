@@ -985,7 +985,7 @@
 			*
 			**/
 			function interfaceDropdown() {
-				global $this_page,$web_root,$root_dir;
+				global $this_page,$include_path;
 				
 				?>
 				<form action=<?php echo $_SERVER['PHP_SELF'] ?> method="GET" name="interface">
@@ -995,11 +995,10 @@
 						$this->hiddenPageVars(); 
 					?>
 					<select class="jz_select" name="<?php echo jz_encode("set_frontend"); ?>" style="width:125px" onChange="submit();" >
-						<option value="">Interface</option>
+						<option value=""><?php echo word('Interface') ?></option>
 						<?php
 							// Now let's get all the possibles
-							$data_dir = $web_root. $root_dir. "/frontend/frontends";
-							$retArray = readDirInfo($data_dir,"dir");
+							$retArray = readDirInfo($include_path. "frontend/frontends","dir");
 							sort($retArray);
 							for ($c=0; $c < count($retArray); $c++){	
 								$entry = $retArray[$c];
@@ -1055,7 +1054,7 @@
 		 *
 		 **/
 		function styleDropdown() {
-		  global $this_page,$root_dir,$web_root, $include_path, $cms_mode;
+			global $this_page,$include_path, $cms_mode;
 			
 			// Not in CMS mode...
 			if ($cms_mode == "true"){
@@ -1073,8 +1072,7 @@
 				<option value=""><?php echo word("Style"); ?></option>			
 				<?php
 					// Now let's get all the possibles
-					$lang_dir = $web_root. $root_dir. "/style";
-					$retArray = readDirInfo($lang_dir,"dir");
+					$retArray = readDirInfo($include_path. "style","dir");
 					sort($retArray);
 					for ($c=0; $c < count($retArray); $c++){	
 					$entry = $retArray[$c];
