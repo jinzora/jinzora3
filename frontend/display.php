@@ -1959,7 +1959,7 @@
 		 * @version 1/29/05
 		 *
 		 **/
-		function statsButton($node, $text = false) {
+		function statsButton($node, $text = false, $return = false) {
 		  global $img_more, $jzUSER;
 		  
 		  if (!$jzUSER->getSetting('admin')){return;}
@@ -1972,7 +1972,13 @@
 		  if ($text === false) {
 		    $text = $img_more;
 		  }
-		  echo ' <a href="'. urlize($arr). '" onclick="openPopup(this, 450, 450); return false;">'. $text. '</a>';
+		  $linkText = ' <a href="'. urlize($arr). '" onclick="openPopup(this, 450, 450); return false;">'. $text. '</a>';
+		  if ($return) {
+		    return $linkText;
+		  }
+		  else {
+		    echo $linkText;
+		  }
 
 		}
 
