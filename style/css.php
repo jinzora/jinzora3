@@ -1,6 +1,6 @@
 <?php
 	header('Content-type: text/css');
-	if (!defined(jz_font_size)){
+	if (!defined("jz_font_size")){
 		define("jz_font_size","11px");	
 	}
 	
