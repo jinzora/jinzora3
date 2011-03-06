@@ -38,8 +38,8 @@
       $d = dirname(__FILE__);
       $root = substr($d, 0, strlen($d)-4) . "/";
       
-      define('SMARTY_DIR', $root. 'lib/smarty/');
-      define('SMARTY_ROOT', $root);
+      defined('SMARTY_DIR') or define('SMARTY_DIR', $root. 'lib/smarty/');
+      defined('SMARTY_ROOT') or define('SMARTY_ROOT', $root);
       require_once(SMARTY_DIR . 'Smarty.class.php');
 
       $smarty = new Smarty;
