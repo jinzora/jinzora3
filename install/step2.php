@@ -61,14 +61,14 @@ function popuphelp(siteaccess,nodeid){
 					<?php
 						$fatal = false;
 						// First let's check the PHP Version
-						if (phpversion() < 4.2){
+						if (phpversion() < 5.3){
 							echo '<font color="red">4.2+ required, '. phpversion(). ' found - fatal error!</font>';
 							?>
 							&nbsp; <a class="helpbox2" href="javascript:void(0);" onmouseover="return overlib('<?php echo $php_version_error; ?>');" onmouseout="return nd();">?</a>
 							<?php
 							$fatal = true;
 						} else {
-							echo '<font color="green">'. phpversion(). ' found (4.2 or higher required)</font>';
+							echo '<font color="green">'. phpversion(). ' found (5.3 or higher required)</font>';
 						}
 					?>
 				</td>
@@ -228,6 +228,32 @@ function popuphelp(siteaccess,nodeid){
 						} else {
 							echo '<font color="green">Off</font>';
 						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<td class="td" width="30%" align="left" valign="top">
+					Magic Quotes:
+				</td>
+				<td class="td" width="1">&nbsp;</td>
+				<td class="td" width="70%" align="left">
+					<?php
+					// Now let's check for magic quotes
+					$magic_quotes_err = false;
+					if (function_exists('get_magic_quotes_runtime') && get_magic_quotes_runtime()) {
+						echo '<font color="red">On - magic_quotes_runtime should be disabled.</font>';
+						$magic_quotes_err = true;
+					} elseif (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
+						echo '<font color="red">On - magic_quotes_gpc should be disabled.</font>';
+						$magic_quotes_err = true;
+					}
+					if ($magic_quotes_err == true) {
+						?>
+						&nbsp; <a class="helpbox2" href="javascript:void(0);" onmouseover="return overlib('<?php echo $word_magic_quotes_error; ?>');" onmouseout="return nd();">?</a>
+							<?php
+					} else {
+						echo '<font color="green">Off</font>';
+					}
 					?>
 				</td>
 			</tr>

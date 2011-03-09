@@ -193,6 +193,7 @@
 	$word_pdf_error = "PDF support not found!";
 	$word_pdf_error_note = "PDF support is only necessary for generating CD inserts from album art in PDF format.  This is a non-critical error.<br><br>For more information on PDF support please visit http://www.php.net/manual/en/ref.pdf.php";
 	$word_reg_global_error = "Having PHPs regsiter_globals setting to On can be a major security risk for some applications.  It is <strong>HIGHLY</strong> recommended that you turn this off in php.ini or that you work with your hosting company to change this setting.  <strong>HIGHLY RECOMMENDED!</strong>";
+	$word_magic_quotes_error = "Having PHPs magic_quotes_gpc or magic_quotes_runtime setting On causes file tag retrieval to fail.  If you want to read or write music file tags, turn this off in php.ini or work with your hosting company to change this setting.  <strong>HIGHTLY RECOMMENDED!</strong>";
 	$word_skip_import_media = "Skip Import";
 	$word_skip_import_message = "If you choose not to import media at this time you will need to use the Media Manager tools in the System Tools drop down box once installation is complete.";
 	$word_enable_jukebox = "Jukebox Mode";
