@@ -1156,25 +1156,27 @@ function sortElements(&$list, $param = "name") {
 			<?php
 		}
 		
+		$status_str = word("Processing files"). ": ". $_SESSION['jz_import_full_progress'];
 		// Now let's figure out what's left
 		if ($_SESSION['jz_import_full_ammount'] <> 0){
 			$left = round((($_SESSION['jz_import_full_progress'] / $_SESSION['jz_import_full_ammount']) * 100));
+			if ($left > 0){$left = $left -1; }
+			// Ok, now let's figure out the time
+			// First how much time has elapsed
+			$elapsed = time() - $_SESSION['jz_import_start_time'];
+			if ($elapsed == 0){$elapsed = 1;}
+			// Ok, now how many files did we do in that time?
+			$perTime = round($_SESSION['jz_import_full_progress'] / $elapsed);
+			if ($perTime == 0){$perTime = 1;}
+			// Now how much is left
+			$ammountLeft = $_SESSION['jz_import_full_ammount'] - $_SESSION['jz_import_full_progress'];
+			// Now time left?
+			$timeLeft = convertSecMins(round($ammountLeft / $perTime));
+			$status_str .= " (". $left. "% - ". $timeLeft. ") &nbsp; ". $val;
 		}
-		if ($left > 0){$left = $left -1; }
-		// Ok, now let's figure out the time
-		// First how much time has elapsed
-		$elapsed = time() - $_SESSION['jz_import_start_time'];
-		if ($elapsed == 0){$elapsed = 1;}
-		// Ok, now how many files did we do in that time?
-		$perTime = round($_SESSION['jz_import_full_progress'] / $elapsed);
-		if ($perTime == 0){$perTime = 1;}
-		// Now how much is left
-		$ammountLeft = $_SESSION['jz_import_full_ammount'] - $_SESSION['jz_import_full_progress'];
-		// Now time left?
-		$timeLeft = convertSecMins(round($ammountLeft / $perTime));
 		?>
 		<script language="javascript">
-			p.innerHTML = '<b><?php echo word("Processing files"). ": ". $_SESSION['jz_import_full_progress']. " (". $left. "% - ". $timeLeft. ") &nbsp; ". $val; ?></b>';
+			p.innerHTML = '<b><?php echo $status_str; ?></b>';
 		-->
 		</SCRIPT>
 		<?php
@@ -1700,6 +1702,10 @@ function updateNodeCache($node, $recursive = false, $showStatus = false, $force 
       $flags['recursive'] = true;
       $jzSERVICES->importMedia($node, $root_path, $flags);
     }
+  }
+
+  if ($showStatus == true) {
+    showStatus();
   }
   
   if ($jukebox == "true") {
