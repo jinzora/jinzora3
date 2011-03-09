@@ -19,11 +19,11 @@ class getid3_bmp
 
 	function getid3_bmp(&$fd, &$ThisFileInfo, $ExtractPalette=false, $ExtractData=false) {
 
-	    // shortcuts
-	    $ThisFileInfo['bmp']['header']['raw'] = array();
-	    $thisfile_bmp                         = &$ThisFileInfo['bmp'];
-	    $thisfile_bmp_header                  = &$thisfile_bmp['header'];
-	    $thisfile_bmp_header_raw              = &$thisfile_bmp_header['raw'];
+		// shortcuts
+		$ThisFileInfo['bmp']['header']['raw'] = array();
+		$thisfile_bmp                         = &$ThisFileInfo['bmp'];
+		$thisfile_bmp_header                  = &$thisfile_bmp['header'];
+		$thisfile_bmp_header_raw              = &$thisfile_bmp_header['raw'];
 
 		// BITMAPFILEHEADER [14 bytes] - http://msdn.microsoft.com/library/en-us/gdi/bitmaps_62uq.asp
 		// all versions
@@ -162,7 +162,7 @@ class getid3_bmp
 				$thisfile_bmp_header_raw['identifier']       = getid3_lib::LittleEndian2Int(substr($BMPheader, $offset, 4));
 				$offset += 4;
 
-				$thisfile_bmp_header['compression']             = $this->BMPcompressionOS2Lookup($thisfile_bmp_header_raw['compression']);
+				$thisfile_bmp_header['compression'] = $this->BMPcompressionOS2Lookup($thisfile_bmp_header_raw['compression']);
 
 				$ThisFileInfo['video']['codec'] = $thisfile_bmp_header['compression'].' '.$thisfile_bmp_header_raw['bits_per_pixel'].'-bit';
 			}
@@ -184,6 +184,8 @@ class getid3_bmp
 			// LONG   biYPelsPerMeter;
 			// DWORD  biClrUsed;
 			// DWORD  biClrImportant;
+
+			// possibly integrate this section and module.audio-video.riff.php::ParseBITMAPINFOHEADER() ?
 
 			$thisfile_bmp_header_raw['width']            = getid3_lib::LittleEndian2Int(substr($BMPheader, $offset, 4), true);
 			$offset += 4;
@@ -316,7 +318,8 @@ class getid3_bmp
 			$RowByteLength = ceil(($thisfile_bmp_header_raw['width'] * ($thisfile_bmp_header_raw['bits_per_pixel'] / 8)) / 4) * 4; // round up to nearest DWORD boundry
 			$BMPpixelData = fread($fd, $thisfile_bmp_header_raw['height'] * $RowByteLength);
 			$pixeldataoffset = 0;
-			switch (@$thisfile_bmp_header_raw['compression']) {
+			$thisfile_bmp_header_raw['compression'] = (isset($thisfile_bmp_header_raw['compression']) ? $thisfile_bmp_header_raw['compression'] : '');
+			switch ($thisfile_bmp_header_raw['compression']) {
 
 				case 0: // BI_RGB
 					switch ($thisfile_bmp_header_raw['bits_per_pixel']) {

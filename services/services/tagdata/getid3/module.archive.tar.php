@@ -8,11 +8,16 @@
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.archive.tar.php                                      //
-// written by Mike Mozolin <teddybearØmail*ru>                 //
 // module for analyzing TAR files                              //
 // dependencies: NONE                                          //
 //                                                            ///
 /////////////////////////////////////////////////////////////////
+//                                                             //
+// Module originally written by                                //
+//      Mike Mozolin <teddybearØmail*ru>                       //
+//                                                             //
+/////////////////////////////////////////////////////////////////
+
 
 class getid3_tar {
 
@@ -20,12 +25,18 @@ class getid3_tar {
 		$ThisFileInfo['fileformat'] = 'tar';
 		$ThisFileInfo['tar']['files'] = array();
 
-		$unpack_header = 'a100fname/a8mode/a8uid/a8gid/a12size/a12mtime/a8chksum/a1typflag/a100lnkname/a6magic/a2ver/a32uname/a32gname/a8devmaj/a8devmin/a155/prefix';
-		$null_512k = str_repeat("\0", 512); // end-of-file marker
+		$unpack_header = 'a100fname/a8mode/a8uid/a8gid/a12size/a12mtime/a8chksum/a1typflag/a100lnkname/a6magic/a2ver/a32uname/a32gname/a8devmaj/a8devmin/a155prefix';
+		$null_512k = str_repeat("\x00", 512); // end-of-file marker
 
-		@fseek($fd, 0);
-        while (!feof($fd)) {
-            $buffer = fread($fd, 512);
+		ob_start();
+		fseek($fd, 0);
+		$errormessage = ob_get_contents();
+		ob_end_clean();
+		while (!feof($fd)) {
+			$buffer = fread($fd, 512);
+			if (strlen($buffer) < 512) {
+				break;
+			}
 
 			// check the block
 			$checksum = 0;
@@ -39,22 +50,22 @@ class getid3_tar {
 				$checksum += ord($buffer{$i});
 			}
 			$attr    = unpack($unpack_header, $buffer);
-			$name    =        trim(@$attr['fname']);
-			$mode    = octdec(trim(@$attr['mode']));
-			$uid     = octdec(trim(@$attr['uid']));
-			$gid     = octdec(trim(@$attr['gid']));
-			$size    = octdec(trim(@$attr['size']));
-			$mtime   = octdec(trim(@$attr['mtime']));
-			$chksum  = octdec(trim(@$attr['chksum']));
-			$typflag =        trim(@$attr['typflag']);
-			$lnkname =        trim(@$attr['lnkname']);
-			$magic   =        trim(@$attr['magic']);
-			$ver     =        trim(@$attr['ver']);
-			$uname   =        trim(@$attr['uname']);
-			$gname   =        trim(@$attr['gname']);
-			$devmaj  = octdec(trim(@$attr['devmaj']));
-			$devmin  = octdec(trim(@$attr['devmin']));
-			$prefix  =        trim(@$attr['prefix']);
+			$name    =       (isset($attr['fname']  ) ? trim($attr['fname']  ) : '');
+			$mode    = octdec(isset($attr['mode']   ) ? trim($attr['mode']   ) : '');
+			$uid     = octdec(isset($attr['uid']    ) ? trim($attr['uid']    ) : '');
+			$gid     = octdec(isset($attr['gid']    ) ? trim($attr['gid']    ) : '');
+			$size    = octdec(isset($attr['size']   ) ? trim($attr['size']   ) : '');
+			$mtime   = octdec(isset($attr['mtime']  ) ? trim($attr['mtime']  ) : '');
+			$chksum  = octdec(isset($attr['chksum'] ) ? trim($attr['chksum'] ) : '');
+			$typflag =       (isset($attr['typflag']) ? trim($attr['typflag']) : '');
+			$lnkname =       (isset($attr['lnkname']) ? trim($attr['lnkname']) : '');
+			$magic   =       (isset($attr['magic']  ) ? trim($attr['magic']  ) : '');
+			$ver     =       (isset($attr['ver']    ) ? trim($attr['ver']    ) : '');
+			$uname   =       (isset($attr['uname']  ) ? trim($attr['uname']  ) : '');
+			$gname   =       (isset($attr['gname']  ) ? trim($attr['gname']  ) : '');
+			$devmaj  = octdec(isset($attr['devmaj'] ) ? trim($attr['devmaj'] ) : '');
+			$devmin  = octdec(isset($attr['devmin'] ) ? trim($attr['devmin'] ) : '');
+			$prefix  =       (isset($attr['prefix'] ) ? trim($attr['prefix'] ) : '');
 			if (($checksum == 256) && ($chksum == 0)) {
 				// EOF Found
 				break;
@@ -159,7 +170,7 @@ class getid3_tar {
 			'S' => 'LF_SPARSE',
 			'V' => 'LF_VOLHDR'
 		);
-		return @$flag_types[$typflag];
+		return (isset($flag_types[$typflag]) ? $flag_types[$typflag] : '');
 	}
 
 }

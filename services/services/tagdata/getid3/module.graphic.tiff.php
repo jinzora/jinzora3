@@ -163,7 +163,12 @@ class getid3_tiff
 					case 306: // DateTime
 					case 315: // Artist
 					case 316: // HostComputer
-						@$ThisFileInfo['tiff']['comments'][$this->TIFFcommentName($fieldarray['raw']['tag'])][] = $ThisFileInfo['tiff']['ifd'][$IFDid]['fields'][$key]['raw']['data'];
+						$TIFFcommentName = $this->TIFFcommentName($fieldarray['raw']['tag']);
+						if (isset($ThisFileInfo['tiff']['comments'][$TIFFcommentName])) {
+							$ThisFileInfo['tiff']['comments'][$TIFFcommentName][] =       $ThisFileInfo['tiff']['ifd'][$IFDid]['fields'][$key]['raw']['data'];
+						} else {
+							$ThisFileInfo['tiff']['comments'][$TIFFcommentName]   = array($ThisFileInfo['tiff']['ifd'][$IFDid]['fields'][$key]['raw']['data']);
+						}
 						break;
 
 					default:

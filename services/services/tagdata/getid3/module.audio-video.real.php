@@ -50,7 +50,7 @@ class getid3_real
 					}
 					return true;
 				}
-				$ThisFileInfo['error'][] = 'There was a problem parsing this RealAudio file. Please submit it for analysis to http://www.getid3.org/upload/ or info@getid3.org';
+				$ThisFileInfo['error'][] = 'There was a problem parsing this RealAudio file. Please submit it for analysis to info@getid3.org';
 				unset($ThisFileInfo['bitrate']);
 				unset($ThisFileInfo['playtime_seconds']);
 				return false;
@@ -73,7 +73,7 @@ class getid3_real
 				$ChunkData .= fread($fd, GETID3_FREAD_BUFFER_SIZE - 8);
 				fseek($fd, $thisfile_real_chunks_currentchunk['offset'] + $ChunkSize, SEEK_SET);
 
-			} else {
+			} elseif(($ChunkSize - 8) > 0) {
 
 				$ChunkData .= fread($fd, $ChunkSize - 8);
 

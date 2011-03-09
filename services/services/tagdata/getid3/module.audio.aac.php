@@ -19,13 +19,12 @@ class getid3_aac
 
 	// new combined constructor
 	function getid3_aac(&$fd, &$ThisFileInfo, $option) {
-
 		if ($option === 'adif') {
 			$this->getAACADIFheaderFilepointer($fd, $ThisFileInfo);
-		}
-		elseif ($option === 'adts') {
+		} elseif ($option === 'adts') {
 			$this->getAACADTSheaderFilepointer($fd, $ThisFileInfo);
 		}
+		return true;
 	}
 
 
@@ -306,6 +305,10 @@ class getid3_aac
 			// breaks out when end-of-file encountered, or invalid data found,
 			// or MaxFramesToScan frames have been scanned
 
+			if (!getid3_lib::intValueSupported($byteoffset)) {
+				$ThisFileInfo['warning'][] = 'Unable to parse AAC file beyond '.ftell($fd).' (PHP does not support file operations beyond '.round(PHP_INT_MAX / 1073741824).'GB)';
+				return false;
+			}
 			fseek($fd, $byteoffset, SEEK_SET);
 
 			// First get substring
@@ -417,7 +420,7 @@ class getid3_aac
 			if (!isset($BitrateCache[$FrameLength])) {
 				$BitrateCache[$FrameLength] = ($ThisFileInfo['aac']['header']['sample_frequency'] / 1024) * $FrameLength * 8;
 			}
-			@$ThisFileInfo['aac']['bitrate_distribution'][$BitrateCache[$FrameLength]]++;
+			getid3_lib::safe_inc($ThisFileInfo['aac']['bitrate_distribution'][$BitrateCache[$FrameLength]], 1);
 
 			$ThisFileInfo['aac'][$framenumber]['aac_frame_length']     = $FrameLength;
 			$bitoffset += 13;

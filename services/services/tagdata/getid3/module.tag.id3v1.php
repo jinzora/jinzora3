@@ -19,6 +19,11 @@ class getid3_id3v1
 
 	function getid3_id3v1(&$fd, &$ThisFileInfo) {
 
+		if (!getid3_lib::intValueSupported($ThisFileInfo['filesize'])) {
+			$ThisFileInfo['warning'][] = 'Unable to check for ID3v1 because file is larger than '.round(PHP_INT_MAX / 1073741824).'GB';
+			return false;
+		}
+
 		fseek($fd, -256, SEEK_END);
 		$preid3v1 = fread($fd, 128);
 		$id3v1tag = fread($fd, 128);
@@ -46,7 +51,7 @@ class getid3_id3v1
 			if (!empty($ParsedID3v1['genre'])) {
 				unset($ParsedID3v1['genreid']);
 			}
-			if (empty($ParsedID3v1['genre']) || (@$ParsedID3v1['genre'] == 'Unknown')) {
+			if (isset($ParsedID3v1['genre']) && (empty($ParsedID3v1['genre']) || ($ParsedID3v1['genre'] == 'Unknown'))) {
 				unset($ParsedID3v1['genre']);
 			}
 
@@ -60,9 +65,9 @@ class getid3_id3v1
 											$ParsedID3v1['artist'],
 											$ParsedID3v1['album'],
 											$ParsedID3v1['year'],
-											$this->LookupGenreID(@$ParsedID3v1['genre']),
+											(isset($ParsedID3v1['genre']) ? $this->LookupGenreID($ParsedID3v1['genre']) : false),
 											$ParsedID3v1['comment'],
-											@$ParsedID3v1['track']);
+											(!empty($ParsedID3v1['track']) ? $ParsedID3v1['track'] : ''));
 			$ParsedID3v1['padding_valid'] = true;
 			if ($id3v1tag !== $GoodFormatID3v1tag) {
 				$ParsedID3v1['padding_valid'] = false;
@@ -96,11 +101,11 @@ class getid3_id3v1
 		return true;
 	}
 
-	function cutfield($str) {
+	static function cutfield($str) {
 		return trim(substr($str, 0, strcspn($str, "\x00")));
 	}
 
-	function ArrayOfGenres($allowSCMPXextended=false) {
+	static function ArrayOfGenres($allowSCMPXextended=false) {
 		static $GenreLookup = array(
 			0    => 'Blues',
 			1    => 'Classic Rock',
@@ -284,12 +289,15 @@ class getid3_id3v1
 		return ($allowSCMPXextended ? $GenreLookupSCMPX : $GenreLookup);
 	}
 
-	function LookupGenreName($genreid, $allowSCMPXextended=true) {
+	static function LookupGenreName($genreid, $allowSCMPXextended=true) {
 		switch ($genreid) {
 			case 'RX':
 			case 'CR':
 				break;
 			default:
+				if (!is_numeric($genreid)) {
+					return false;
+				}
 				$genreid = intval($genreid); // to handle 3 or '3' or '03'
 				break;
 		}
@@ -297,28 +305,25 @@ class getid3_id3v1
 		return (isset($GenreLookup[$genreid]) ? $GenreLookup[$genreid] : false);
 	}
 
-	function LookupGenreID($genre, $allowSCMPXextended=false) {
+	static function LookupGenreID($genre, $allowSCMPXextended=false) {
 		$GenreLookup = getid3_id3v1::ArrayOfGenres($allowSCMPXextended);
 		$LowerCaseNoSpaceSearchTerm = strtolower(str_replace(' ', '', $genre));
 		foreach ($GenreLookup as $key => $value) {
-			foreach ($GenreLookup as $key => $value) {
-				if (strtolower(str_replace(' ', '', $value)) == $LowerCaseNoSpaceSearchTerm) {
-					return $key;
-				}
+			if (strtolower(str_replace(' ', '', $value)) == $LowerCaseNoSpaceSearchTerm) {
+				return $key;
 			}
-			return false;
 		}
-		return (isset($GenreLookup[$genreid]) ? $GenreLookup[$genreid] : false);
+		return false;
 	}
 
-	function StandardiseID3v1GenreName($OriginalGenre) {
+	static function StandardiseID3v1GenreName($OriginalGenre) {
 		if (($GenreID = getid3_id3v1::LookupGenreID($OriginalGenre)) !== false) {
 			return getid3_id3v1::LookupGenreName($GenreID);
 		}
 		return $OriginalGenre;
 	}
 
-	function GenerateID3v1Tag($title, $artist, $album, $year, $genreid, $comment, $track='') {
+	static function GenerateID3v1Tag($title, $artist, $album, $year, $genreid, $comment, $track='') {
 		$ID3v1Tag  = 'TAG';
 		$ID3v1Tag .= str_pad(trim(substr($title,  0, 30)), 30, "\x00", STR_PAD_RIGHT);
 		$ID3v1Tag .= str_pad(trim(substr($artist, 0, 30)), 30, "\x00", STR_PAD_RIGHT);

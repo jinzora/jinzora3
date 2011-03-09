@@ -20,7 +20,12 @@ class getid3_lyrics3
 	function getid3_lyrics3(&$fd, &$ThisFileInfo) {
 		// http://www.volweb.cz/str/tags.htm
 
-		fseek($fd, (0 - 128 - 9 - 6), SEEK_END);          // end - ID3v1 - LYRICSEND - [Lyrics3size]
+		if (!getid3_lib::intValueSupported($ThisFileInfo['filesize'])) {
+			$ThisFileInfo['warning'][] = 'Unable to check for Lyrics3 because file is larger than '.round(PHP_INT_MAX / 1073741824).'GB';
+			return false;
+		}
+
+		fseek($fd, (0 - 128 - 9 - 6), SEEK_END);          // end - ID3v1 - "LYRICSEND" - [Lyrics3size]
 		$lyrics3_id3v1 = fread($fd, 128 + 9 + 6);
 		$lyrics3lsz    = substr($lyrics3_id3v1,  0,   6); // Lyrics3size
 		$lyrics3end    = substr($lyrics3_id3v1,  6,   9); // LYRICSEND or LYRICS200
@@ -96,6 +101,7 @@ class getid3_lyrics3
 				$GETID3_ERRORARRAY = &$ThisFileInfo['warning'];
 				if (getid3_lib::IncludeDependency(GETID3_INCLUDEPATH.'module.tag.apetag.php', __FILE__, false)) {
 					$tag = new getid3_apetag($fd, $ThisFileInfo, $ThisFileInfo['lyrics3']['tag_offset_start']);
+					unset($tag);
 				}
 			}
 
@@ -106,6 +112,11 @@ class getid3_lyrics3
 
 	function getLyrics3Data(&$ThisFileInfo, &$fd, $endoffset, $version, $length) {
 		// http://www.volweb.cz/str/tags.htm
+
+		if (!getid3_lib::intValueSupported($endoffset)) {
+			$ThisFileInfo['warning'][] = 'Unable to check for Lyrics3 because file is larger than '.round(PHP_INT_MAX / 1073741824).'GB';
+			return false;
+		}
 
 		fseek($fd, $endoffset, SEEK_SET);
 		if ($length <= 0) {
@@ -163,8 +174,8 @@ class getid3_lyrics3
 						$i = 0;
 						$flagnames = array('lyrics', 'timestamps', 'inhibitrandom');
 						foreach ($flagnames as $flagname) {
-							if (strlen($ParsedLyrics3['raw']['IND']) > ++$i) {
-								$ParsedLyrics3['flags'][$flagname] = $this->IntString2Bool(substr($ParsedLyrics3['raw']['IND'], $i, 1));
+							if (strlen($ParsedLyrics3['raw']['IND']) > $i++) {
+								$ParsedLyrics3['flags'][$flagname] = $this->IntString2Bool(substr($ParsedLyrics3['raw']['IND'], $i, 1 - 1));
 							}
 						}
 					}
@@ -181,9 +192,9 @@ class getid3_lyrics3
 						foreach ($imagestrings as $key => $imagestring) {
 							if (strpos($imagestring, '||') !== false) {
 								$imagearray = explode('||', $imagestring);
-								$ParsedLyrics3['images'][$key]['filename']     = $imagearray[0];
-								$ParsedLyrics3['images'][$key]['description']  = $imagearray[1];
-								$ParsedLyrics3['images'][$key]['timestamp']    = $this->Lyrics3Timestamp2Seconds($imagearray[2]);
+								$ParsedLyrics3['images'][$key]['filename']     =                                (isset($imagearray[0]) ? $imagearray[0] : '');
+								$ParsedLyrics3['images'][$key]['description']  =                                (isset($imagearray[1]) ? $imagearray[1] : '');
+								$ParsedLyrics3['images'][$key]['timestamp']    = $this->Lyrics3Timestamp2Seconds(isset($imagearray[2]) ? $imagearray[2] : '');
 							}
 						}
 					}
@@ -221,7 +232,7 @@ class getid3_lyrics3
 	}
 
 	function Lyrics3Timestamp2Seconds($rawtimestamp) {
-		if (ereg('^\\[([0-9]{2}):([0-9]{2})\\]$', $rawtimestamp, $regs)) {
+		if (preg_match('#^\\[([0-9]{2}):([0-9]{2})\\]$#', $rawtimestamp, $regs)) {
 			return (int) (($regs[1] * 60) + $regs[2]);
 		}
 		return false;
@@ -232,7 +243,7 @@ class getid3_lyrics3
 		foreach ($lyricsarray as $key => $lyricline) {
 			$regs = array();
 			unset($thislinetimestamps);
-			while (ereg('^(\\[[0-9]{2}:[0-9]{2}\\])', $lyricline, $regs)) {
+			while (preg_match('#^(\\[[0-9]{2}:[0-9]{2}\\])#', $lyricline, $regs)) {
 				$thislinetimestamps[] = $this->Lyrics3Timestamp2Seconds($regs[0]);
 				$lyricline = str_replace($regs[0], '', $lyricline);
 			}

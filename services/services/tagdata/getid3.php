@@ -45,11 +45,13 @@
 		number
 		genre
 		comment
-		lyrics
 		pic_data
 		pic_ext
 		pic_name
 		pic_mime						
+		
+		TODO: support writing lyrics, but need to correctly encode
+		  into the id3v2 tag
 		*/
 		
 		// Ok, first we need to include the getID3 functions
@@ -62,7 +64,6 @@
 		getid3_lib::IncludeDependency(GETID3_INCLUDEPATH.'write.php', __FILE__, true);
 		$tagwriter = new getid3_writetags;
 		$tagwriter->filename = $fname;
-		//$tagwriter->overwrite_tags = true;		
 		$fileInfo = $getID3->analyze($fname);
 		getid3_lib::CopyTagsToComments($fileInfo);
 
@@ -70,7 +71,7 @@
 			case 'mp3':
 			case 'mp2':
 			case 'mp1':
-				$ValidTagTypes = array('id3v1', 'id3v2.3');
+				$ValidTagTypes = array('id3v1', 'id3v2.3', 'ape');
 				break;
 
 			case 'mpc':
@@ -131,7 +132,7 @@
 				$data['attached_picture'][0]['mime'] = $fileInfo['attached_picture'][0]['mime'];
 			}			
 		}		
-		if (isset($meta['year'])){
+		if (isset($meta['year']) && $meta['year'] != "-"){
 			$data['year'][] = $meta['year'];
 		} else {
 			if (!empty($fileInfo['comments']['year'][0])) {
@@ -140,7 +141,7 @@
 				$data['year'][] = "";
 			}			
 		}
-		if (isset($meta['number'])){
+		if (isset($meta['number']) && $meta['number'] != "-"){
 			$data['track'][] = $meta['number'];
 		} else if (!isset($meta['track'])){ // handle 'track' later
 			if (!empty($fileInfo['comments']['comment'][0])) {
@@ -158,16 +159,7 @@
 				$data['comment'][] = "";
 			}			
 		}
-		if (isset($meta['lyrics'])){
-			$data['unsynchronised_lyrics'][] = $meta['lyrics'];
-		} else {
-			if (!empty($fileInfo['tags']['id3v2']['unsynchronised lyric'][0])) {
-				$data['unsynchronised_lyrics'][] = $fileInfo['tags']['id3v2']['unsynchronised lyric'][0];
-			} else {
-				$data['unsynchronised_lyrics'][] = "";
-			}		
-		}
-		if (isset($meta['title'])){
+		if (isset($meta['title']) && $meta['title'] != "-"){
 			$data['title'][] = $meta['title'];
 		} else {
 			if (!empty($fileInfo['comments']['title'][0])) {
@@ -176,7 +168,7 @@
 				$data['title'][] = "";
 			}		
 		}
-		if (isset($meta['artist'])){
+		if (isset($meta['artist']) && $meta['artist'] != "-"){
 			$data['artist'][] = $meta['artist'];
 		} else {
 			if (!empty($fileInfo['comments']['artist'][0])) {
@@ -185,7 +177,7 @@
 				$data['artist'][] = "";
 			}		
 		}
-		if (isset($meta['album'])){
+		if (isset($meta['album']) && $meta['album'] != "-"){
 			$data['album'][] = $meta['album'];
 		} else {
 			if (!empty($fileInfo['comments']['album'][0])) {
@@ -194,10 +186,8 @@
 				$data['album'][] = "";
 			}		
 		}
-		if (isset($meta['genre'])){
+		if (isset($meta['genre']) && $meta['genre'] != "-"){
 			$data['genre'][] = $meta['genre'];
-			// Now let's set the genre ID
-			$data['genreid'][] = returnGenres($meta['genre']);
 		} else {
 			if (!empty($fileInfo['comments']['genre'][0])) {
 				$data['genre'][] = $fileInfo['comments']['genre'][0];
@@ -206,14 +196,14 @@
 			}		
 		}
 		if (!isset($meta['number']) && isset($meta['track'])){
-        	$data['track'][] = $meta['track'];
-        } else if (!isset($meta['number'])) {
-        	if (!empty($fileInfo['comments']['track'][0])) {
-            	$data['track'][] = $fileInfo['comments']['track'][0];
-            } else {
-            	$data['track'][] = "";
-            }
-        }
+		  $data['track'][] = $meta['track'];
+		} else if (!isset($meta['number'])) {
+		  if (!empty($fileInfo['comments']['track'][0])) {
+		    $data['track'][] = $fileInfo['comments']['track'][0];
+		  } else {
+		    $data['track'][] = "";
+		  }
+		}
 
 		// Now let's write
 		$tagwriter->tag_data = $data;
@@ -251,71 +241,39 @@
 		} else {
 			$meta['size'] = "-";
 		}
-		if (!empty($fileInfo['comments']['title'][0])) {
-			$meta['title'] = $fileInfo['comments']['title'][0];
-		} else {
-			$meta['title'] = "-";
-		}
-		if (!empty($fileInfo['comments']['artist'][0])) {
-			$meta['artist'] = $fileInfo['comments']['artist'][0];
-		} else {
-			$meta['artist'] = "-";
-		}
-		if (!empty($fileInfo['comments']['album'][0])) {
-			$meta['album'] = $fileInfo['comments']['album'][0];
-		} else {
-			$meta['album'] = "-";
-		}
-		if (!empty($fileInfo['comments']['year'][0])) {
-			$meta['year'] = $fileInfo['comments']['year'][0];
-		} else {
-			# Ogg files store the year in the first 4 characters of the date field (yyyy-mm-ddThh:mm:ss)
-			# This also deals with those taggers that only fill in the year (yyyy)
-			if (!empty($fileInfo['comments']['date'][0])) {
-				$meta['year'] = substr($fileInfo['comments']['date'][0], 0, 4);
-			} else {
-				$meta['year'] = "-";
-			}
-		}
-		if (!empty($fileInfo['comments']['track'][0])) {
-			$meta['number'] = $fileInfo['comments']['track'][0];
-		} else {
-			if (!empty($fileInfo['comments']['tracknumber'][0])) {
-				$meta['number'] = $fileInfo['comments']['tracknumber'][0];
-			} else {	
-				$meta['number'] = "-";
-			}
-		}
-		// GetID3 blows. Check for the genre and check for '(X)' format.
-		if (!empty($fileInfo['id3v2']['TCON'][0]['data'])) {
-		  if (substr($fileInfo['id3v2']['TCON'][0]['data'],0,1) == '(' &&
-		      is_numeric(substr($fileInfo['id3v2']['TCON'][0]['data'],1,1))) {
-		    $meta['genre'] = $fileInfo['comments']['genre'][0];
-		  } else if (is_numeric($fileInfo['id3v2']['TCON'][0]['data'])) {
-		    $meta['genre'] = $fileInfo['comments']['genre'][0];
+		$meta['title'] = getCommentValue($fileInfo, 'title', "-");
+		$meta['artist'] = getCommentValue($fileInfo, 'artist', "-");
+		$meta['album'] = getCommentValue($fileInfo, 'album', "-");
+		if(! ($year = getCommentValue($fileInfo, 'year'))) {
+		  # Ogg files store the year in the first 4 characters of the date field (yyyy-mm-ddThh:mm:ss)
+		  # This also deals with those taggers that only fill in the year (yyyy)
+		  if(($year = getCommentValue($fileInfo, 'date'))) {
+		    $year = substr($year, 0, 4);
 		  } else {
-		    $meta['genre'] = $fileInfo['id3v2']['TCON'][0]['data'];
+		    $year = "-";
 		  }
-		} else if (!empty($fileInfo['comments']['genre'][0])) {
-			$meta['genre'] = $fileInfo['comments']['genre'][0];
-		} else {
-			$meta['genre'] = "-";
 		}
+		$meta['year'] = $year;
+		if (!($track = getCommentValue($fileInfo, 'track_number'))) {
+		  $track = getCommentValue($fileInfo, 'track', "-");
+		}
+		if (strstr($track, '/')) {
+		  // strip "/<total>"
+		  $track = substr($track, 0, strpos($track, '/'));
+		}
+		if($track[0] == '0') {
+		  // strip leading 0
+		  $track = substr($track, 1, strlen($track));
+		}
+		$meta['number'] = $track;
+		$meta['genre'] = getCommentValue($fileInfo, 'genre', "-");
 		if (!empty($fileInfo['audio']['sample_rate'])) {
 			$meta['frequency'] = round($fileInfo['audio']['sample_rate']/1000,1);
 		} else {
 			$meta['frequency'] = "-";
 		}
-		if (!empty($fileInfo['comments']['comment'][0])) {
-			$meta['comment'] = $fileInfo['comments']['comment'][0];
-		} else {
-			$meta['comment'] = "";
-		}
-		if (!empty($fileInfo['tags']['id3v2']['unsynchronised_lyric'][0])) {
-			$meta['lyrics'] = $fileInfo['tags']['id3v2']['unsynchronised_lyric'][0];
-		} else {
-			$meta['lyrics'] = "";
-		}
+		$meta['comment'] = getCommentValue($fileInfo, 'comment', "");
+		$meta['lyrics'] = getCommentValue($fileInfo, 'unsynchronised_lyric', "");
 		if (!empty($fileInfo['video']['resolution_x'])){
 			$meta['width'] = $fileInfo['video']['resolution_x'];
 		} else {
@@ -420,168 +378,12 @@
 		// Now let's return what we go
 		return $meta;
 	}
-	
-	function returnGenres($genre) {
-	
-		// Now let's define all the genres
-		$genres = array(
-			0   => 'Blues',
-			1   => 'Classic Rock',
-			2   => 'Country',
-			3   => 'Dance',
-			4   => 'Disco',
-			5   => 'Funk',
-			6   => 'Grunge',
-			7   => 'Hip-Hop',
-			8   => 'Jazz',
-			9   => 'Metal',
-			10  => 'New Age',
-			11  => 'Oldies',
-			12  => 'Other',
-			13  => 'Pop',
-			14  => 'R&B',
-			15  => 'Rap',
-			16  => 'Reggae',
-			17  => 'Rock',
-			18  => 'Techno',
-			19  => 'Industrial',
-			20  => 'Alternative',
-			21  => 'Ska',
-			22  => 'Death Metal',
-			23  => 'Pranks',
-			24  => 'Soundtrack',
-			25  => 'Euro-Techno',
-			26  => 'Ambient',
-			27  => 'Trip-Hop',
-			28  => 'Vocal',
-			29  => 'Jazz+Funk',
-			30  => 'Fusion',
-			31  => 'Trance',
-			32  => 'Classical',
-			33  => 'Instrumental',
-			34  => 'Acid',
-			35  => 'House',
-			36  => 'Game',
-			37  => 'Sound Clip',
-			38  => 'Gospel',
-			39  => 'Noise',
-			40  => 'Alternative Rock',
-			41  => 'Bass',
-			42  => 'Soul',
-			43  => 'Punk',
-			44  => 'Space',
-			45  => 'Meditative',
-			46  => 'Instrumental Pop',
-			47  => 'Instrumental Rock',
-			48  => 'Ethnic',
-			49  => 'Gothic',
-			50  => 'Darkwave',
-			51  => 'Techno-Industrial',
-			52  => 'Electronic',
-			53  => 'Pop-Folk',
-			54  => 'Eurodance',
-			55  => 'Dream',
-			56  => 'Southern Rock',
-			57  => 'Comedy',
-			58  => 'Cult',
-			59  => 'Gangsta',
-			60  => 'Top 40',
-			61  => 'Christian Rap',
-			62  => 'Pop/Funk',
-			63  => 'Jungle',
-			64  => 'Native US',
-			65  => 'Cabaret',
-			66  => 'New Wave',
-			67  => 'Psychadelic',
-			68  => 'Rave',
-			69  => 'Showtunes',
-			70  => 'Trailer',
-			71  => 'Lo-Fi',
-			72  => 'Tribal',
-			73  => 'Acid Punk',
-			74  => 'Acid Jazz',
-			75  => 'Polka',
-			76  => 'Retro',
-			77  => 'Musical',
-			78  => 'Rock & Roll',
-			79  => 'Hard Rock',
-			80  => 'Folk',
-			81  => 'Folk-Rock',
-			82  => 'National Folk',
-			83  => 'Swing',
-			84  => 'Fast Fusion',
-			85  => 'Bebob',
-			86  => 'Latin',
-			87  => 'Revival',
-			88  => 'Celtic',
-			89  => 'Bluegrass',
-			90  => 'Avantgarde',
-			91  => 'Gothic Rock',
-			92  => 'Progressive Rock',
-			93  => 'Psychedelic Rock',
-			94  => 'Symphonic Rock',
-			95  => 'Slow Rock',
-			96  => 'Big Band',
-			97  => 'Chorus',
-			98  => 'Easy Listening',
-			99  => 'Acoustic',
-			100 => 'Humour',
-			101 => 'Speech',
-			102 => 'Chanson',
-			103 => 'Opera',
-			104 => 'Chamber Music',
-			105 => 'Sonata',
-			106 => 'Symphony',
-			107 => 'Booty Bass',
-			108 => 'Primus',
-			109 => 'Porn Groove',
-			110 => 'Satire',
-			111 => 'Slow Jam',
-			112 => 'Club',
-			113 => 'Tango',
-			114 => 'Samba',
-			115 => 'Folklore',
-			116 => 'Ballad',
-			117 => 'Power Ballad',
-			118 => 'Rhytmic Soul',
-			119 => 'Freestyle',
-			120 => 'Duet',
-			121 => 'Punk Rock',
-			122 => 'Drum Solo',
-			123 => 'Acapella',
-			124 => 'Euro-House',
-			125 => 'Dance Hall',
-			126 => 'Goa',
-			127 => 'Drum & Bass',
-			128 => 'Club-House',
-			129 => 'Hardcore',
-			130 => 'Terror',
-			131 => 'Indie',
-			132 => 'BritPop',
-			133 => 'Negerpunk',
-			134 => 'Polsk Punk',
-			135 => 'Beat',
-			136 => 'Christian Gangsta Rap',
-			137 => 'Heavy Metal',
-			138 => 'Black Metal',
-			139 => 'Crossover',
-			140 => 'Contemporary Christian',
-			141 => 'Christian Rock',
-			142 => 'Merengue',
-			143 => 'Salsa',
-			144 => 'Trash Metal',
-			145 => 'Anime',
-			146 => 'Jpop',
-			147 => 'Synthpop'
-		);
-		$i=0;
-		foreach($genres as $item){
-			if ($item == $genre){
-				return $i;
-			}
-			$i++;
-		}
-		return false;		
-	} 
 
+	function getCommentValue($fileInfo, $name, $defvalue = false) {
+	  if (!empty($fileInfo['comments'][$name]) && is_array($fileInfo['comments'][$name]) && !empty($fileInfo['comments'][$name][0])) {
+	    return $fileInfo['comments'][$name][0];
+	  }
+	  return $defvalue;
+	}
+	      
 ?>

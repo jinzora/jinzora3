@@ -8,7 +8,7 @@
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.audio.la.php                                         //
-// module for analyzing LA audio files                         //
+// module for analyzing LA (LosslessAudio) audio files         //
 // dependencies: module.audio.riff.php                         //
 //                                                            ///
 /////////////////////////////////////////////////////////////////
@@ -155,7 +155,7 @@ class getid3_la
 				}
 
 				if ($ThisFileInfo['la']['footerstart'] < $ThisFileInfo['avdataend']) {
-					if ($RIFFtempfilename = tempnam('*', 'id3')) {
+					if ($RIFFtempfilename = tempnam(GETID3_TEMP_DIR, 'id3')) {
 						if ($RIFF_fp = fopen($RIFFtempfilename, 'w+b')) {
 							$RIFFdata = 'WAVE';
 							if ($ThisFileInfo['la']['version'] == 0.2) {
@@ -180,6 +180,7 @@ class getid3_la
 							} else {
 								$ThisFileInfo['warning'][] = 'Error parsing RIFF portion of La file: '.implode($dummy['error']);
 							}
+							unset($riff);
 							unset($dummy);
 							fclose($RIFF_fp);
 						}

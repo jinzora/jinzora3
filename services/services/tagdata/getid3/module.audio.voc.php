@@ -33,7 +33,7 @@ class getid3_voc
 		$ThisFileInfo['voc'] = array();
 		$thisfile_voc        = &$ThisFileInfo['voc'];
 
-		$ThisFileInfo['fileformat']               = 'voc';
+		$ThisFileInfo['fileformat']        = 'voc';
 		$thisfile_audio['dataformat']      = 'voc';
 		$thisfile_audio['bitrate_mode']    = 'cbr';
 		$thisfile_audio['lossless']        = true;
@@ -60,7 +60,7 @@ class getid3_voc
 			$BlockSize      = getid3_lib::LittleEndian2Int(substr($BlockData, 1, 3));
 			$ThisBlock      = array();
 
-			@$thisfile_voc['blocktypes'][$BlockType]++;
+			getid3_lib::safe_inc($thisfile_voc['blocktypes'][$BlockType], 1);
 			switch ($BlockType) {
 				case 0:  // Terminator
 					// do nothing, we'll break out of the loop down below

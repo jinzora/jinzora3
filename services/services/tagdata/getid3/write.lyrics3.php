@@ -30,13 +30,14 @@ class getid3_write_lyrics3
 		$this->errors[] = 'WriteLyrics3() not yet functional - cannot write Lyrics3';
 		return false;
 	}
-
 	function DeleteLyrics3() {
 		// Initialize getID3 engine
 		$getID3 = new getID3;
 		$ThisFileInfo = $getID3->analyze($this->filename);
 		if (isset($ThisFileInfo['lyrics3']['tag_offset_start']) && isset($ThisFileInfo['lyrics3']['tag_offset_end'])) {
-			if ($fp = @fopen($this->filename, 'a+b')) {
+			ob_start();
+			if ($fp = fopen($this->filename, 'a+b')) {
+				ob_end_clean();
 
 				flock($fp, LOCK_EX);
 				$oldignoreuserabort = ignore_user_abort(true);
@@ -62,6 +63,8 @@ class getid3_write_lyrics3
 
 			} else {
 
+				$errormessage = ob_get_contents();
+				ob_end_clean();
 				$this->errors[] = 'Cannot open "'.$this->filename.'" in "a+b" mode';
 				return false;
 
@@ -70,8 +73,6 @@ class getid3_write_lyrics3
 		// no Lyrics3 present
 		return true;
 	}
-
-
 
 }
 

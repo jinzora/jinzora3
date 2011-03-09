@@ -8,11 +8,16 @@
 /////////////////////////////////////////////////////////////////
 //                                                             //
 // module.archive.gzip.php                                     //
-// written by Mike Mozolin <teddybearØmail*ru>                 //
 // module for analyzing GZIP files                             //
 // dependencies: NONE                                          //
 //                                                            ///
 /////////////////////////////////////////////////////////////////
+//                                                             //
+// Module originally written by                                //
+//      Mike Mozolin <teddybearØmail*ru>                       //
+//                                                             //
+/////////////////////////////////////////////////////////////////
+
 
 class getid3_gzip {
 
@@ -27,8 +32,11 @@ class getid3_gzip {
 		//+---+---+---+---+---+---+---+---+---+---+
 		//|ID1|ID2|CM |FLG|     MTIME     |XFL|OS |
 		//+---+---+---+---+---+---+---+---+---+---+
-		@fseek($fd, 0);
-		$buffer = @fread($fd, $ThisFileInfo['filesize']);
+		ob_start();
+		fseek($fd, 0);
+		$buffer = fread($fd, $ThisFileInfo['filesize']);
+		$errormessage = ob_get_contents();
+		ob_end_clean();
 
 		$arr_members = explode("\x1F\x8B\x08", $buffer);
 		while (true) {
@@ -112,10 +120,10 @@ class getid3_gzip {
 					$si1 = ord(substr($buff, $fpointer + $idx++, 1));
 					$si2 = ord(substr($buff, $fpointer + $idx++, 1));
 					if (($si1 == 0x41) && ($si2 == 0x70)) {
-						$w_xsublen = substr($buff, $fpointer+$idx, 2);
+						$w_xsublen = substr($buff, $fpointer + $idx, 2);
 						$xsublen = getid3_lib::LittleEndian2Int($w_xsublen);
 						$idx += 2;
-						$arr_xsubfield[] = substr($buff, $fpointer+$idx, $xsublen);
+						$arr_xsubfield[] = substr($buff, $fpointer + $idx, $xsublen);
 						$idx += $xsublen;
 					} else {
 						break;
@@ -128,7 +136,7 @@ class getid3_gzip {
 			//|...original file name, zero-terminated...|
 			//+=========================================+
 			// GZIP files may have only one file, with no filename, so assume original filename is current filename without .gz
-			$thisThisFileInfo['filename'] = eregi_replace('.gz$', '', $ThisFileInfo['filename']);
+			$thisThisFileInfo['filename'] = preg_replace('#\.gz$#i', '', $ThisFileInfo['filename']);
 			if ($thisThisFileInfo['flags']['filename']) {
 				while (true) {
 					if (ord($buff[$fpointer]) == 0) {
@@ -193,19 +201,37 @@ class getid3_gzip {
 					$determined_format = $newgetID3->GetFileFormat($formattest);
 					unset($newgetID3);
 
-	        		// file format is determined
-	        		switch (@$determined_format['module']) {
-	        			case 'tar':
+					// file format is determined
+					$determined_format['module'] = (isset($determined_format['module']) ? $determined_format['module'] : '');
+					switch ($determined_format['module']) {
+						case 'tar':
 							// view TAR-file info
-							if (file_exists(GETID3_INCLUDEPATH.$determined_format['include']) && @include_once(GETID3_INCLUDEPATH.$determined_format['include'])) {
-								getid3_tar::read_tar($inflated, $ThisFileInfo['gzip']['member_header'][$idx]);
+							if (file_exists(GETID3_INCLUDEPATH.$determined_format['include']) && include_once(GETID3_INCLUDEPATH.$determined_format['include'])) {
+								if (($temp_tar_filename = tempnam(GETID3_TEMP_DIR, 'getID3')) === false) {
+									// can't find anywhere to create a temp file, abort
+									$ThisFileInfo['error'][] = 'Unable to create temp file to parse TAR inside GZIP file';
+									break;
+								}
+								if ($fp_temp_tar = fopen($temp_tar_filename, 'w+b')) {
+									fwrite($fp_temp_tar, $inflated);
+									rewind($fp_temp_tar);
+									$getid3_tar = new getid3_tar($fp_temp_tar, $dummy);
+									$ThisFileInfo['gzip']['member_header'][$idx]['tar'] = $dummy['tar'];
+									unset($dummy);
+									unset($getid3_tar);
+									fclose($fp_temp_tar);
+									unlink($temp_tar_filename);
+								} else {
+									$ThisFileInfo['error'][] = 'Unable to fopen() temp file to parse TAR inside GZIP file';
+									break;
+								}
 							}
 							break;
 
-	        			case '':
-	        			default:
-	        				// unknown or unhandled format
-	        				break;
+						case '':
+						default:
+							// unknown or unhandled format
+							break;
 					}
 				}
 			}
@@ -232,7 +258,7 @@ class getid3_gzip {
 			'13'  => 'Acorn RISCOS',
 			'255' => 'unknown'
 		);
-		return @$os_type[$key];
+		return (isset($os_type[$key]) ? $os_type[$key] : '');
 	}
 
 	// Converts the eXtra FLags
@@ -242,7 +268,7 @@ class getid3_gzip {
 			'2' => 'maximum compression',
 			'4' => 'fastest algorithm'
 		);
-		return @$xflag_type[$key];
+		return (isset($xflag_type[$key]) ? $xflag_type[$key] : '');
 	}
 }
 
