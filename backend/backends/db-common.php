@@ -103,7 +103,9 @@ function resultsToArray(& $results, $type = false) {
 			    $meta['filename'] = jz_db_unescape($r['name']);
 			    $meta['size'] = jz_db_unescape($r['filesize']);
 			    $meta['year'] = jz_db_unescape($r['year']);
-			    $meta['comment'] = jz_db_unescape($r['descr']);
+			    if (isset($r['descr'])) {
+			      $meta['comment'] = jz_db_unescape($r['descr']);
+			    }
 			    $meta['length'] = jz_db_unescape($r['length']);
 			    $meta['number'] = jz_db_unescape($r['number']);
 			    $meta['genre'] = jz_db_unescape($r['genre']);

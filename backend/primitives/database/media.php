@@ -2403,7 +2403,7 @@ function filenameToPath($fp) {
 		  global $sql_type,$sql_pw,$sql_usr,$sql_socket,$sql_db,$jzSERVICES;
 		  
 		  $path = jz_db_escape($this->getPath("String"));
-		  if ($this->artpath) {
+		  if (isset($this->artpath) && $this->artpath) {
 		     $results = array('main_art' => $this->artpath);
 		  } else if ($cacheOnly) {
 		    return false;
