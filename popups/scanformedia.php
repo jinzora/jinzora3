@@ -63,17 +63,25 @@ if (!isset ($_POST['edit_scan_now'])) {
 
 // Ok, let's do it...		
 echo "<b>" . word("Scanning") . ":</b>";
+echo '<div id="importProgress"></div>';
 echo '<div id="importStatus"></div>';
+$startTime = time();
 ?>
-		<script language="javascript">
-		d = document.getElementById("importStatus");
-		-->
-		</SCRIPT>
-		<?php
-
+<script language="javascript">
+  p = document.getElementById("importProgress");
+  d = document.getElementById("importStatus");
+  -->
+</script>
+<?php
 
 set_time_limit(0);
 flushdisplay();
+
+// Now let's update the cache
+$_SESSION['jz_import_progress'] = 1;
+$_SESSION['jz_import_full_progress'] = 0;
+// TODO: estimate full filecount from all media directories
+$_SESSION['jz_import_full_ammount'] = 0;
 
 // Now how to scan?
 if ($_POST['edit_scan_where'] == "only") {
@@ -91,9 +99,13 @@ if (isset ($_POST['edit_force_scan'])) {
 
 updateNodeCache($node, $recursive, true, $force_scan);
 
-echo "<br><br><b>" . word("Complete!") . "</b>";
+?>
+<script language="javascript">
+  d.innerHTML = '<?php echo word("Import Complete!"); ?></strong> (<?php echo round(((time() - $startTime)/60),2). " ". word("minutes"); ?>)'; 
+  -->
+</script>
+<?php
 $this->closeBlock();
-flushdisplay();
 
 // Now let's close out
 echo "<br><br><center>";
