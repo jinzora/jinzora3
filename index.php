@@ -61,19 +61,19 @@
 		$link_root = "index.php?";
 		$cms_type = "mambo";
 		$cms_mode = "true";
-	} else if(file_exists(dirname(__FILE__)."/../lib-common.php")) {
+	} else if(@file_exists(dirname(__FILE__)."/../lib-common.php")) {
 	  require_once(dirname(__FILE__)."/../lib-common.php");
 	  $include_path = "";
 	  $link_root = "index.php?";
 	  $cms_type = "geeklog";
 	  $cms_mode = "true";
-	} else if (file_exists(dirname(__FILE__)."/../../mainfile.php")) {
+	} else if (@file_exists(dirname(__FILE__)."/../../mainfile.php")) {
 	  include(dirname(__FILE__)."/../../mainfile.php");
 	  $include_path = "";
 	  $link_root = "index.php?";
 	  $cms_type = "xoops";
 	  $cms_mode = "true";
-	} else if (file_exists(dirname(__FILE__)."/../../class2.php")) {
+	} else if (@file_exists(dirname(__FILE__)."/../../class2.php")) {
 	  include(dirname(__FILE__)."/../../class2.php");
 	  $include_path = "";
 	  $link_root = "index.php?";
