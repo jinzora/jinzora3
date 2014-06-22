@@ -28,7 +28,6 @@
 
 // Do something and die.
 if (isset ($argv) && sizeof($argv) > 0 && $_SERVER['argc'] > 0) {
-	$exit = true;
 	switch ($argv[1]) {
 
 		// UPDATE
@@ -255,6 +254,7 @@ if (isset ($argv) && sizeof($argv) > 0 && $_SERVER['argc'] > 0) {
 			// HELP:
 		case "help" :
 		case "-h" :
+		default :
 			echo "Usage: \n";
 			echo "php index.php update [root]\n";
 			echo "           Updates the cache\n";
@@ -267,11 +267,7 @@ if (isset ($argv) && sizeof($argv) > 0 && $_SERVER['argc'] > 0) {
 			echo "php index.php search_metadata [root]\n";
 			echo "           Searches for missing metadata.\n";
 			break;
-		default :
-			$exit = false;
 	}
-	if ($exit) {
-		exit ();
-	}
+	exit ();
 }
 ?>
