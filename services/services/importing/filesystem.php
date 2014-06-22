@@ -187,7 +187,7 @@ function SERVICE_IMPORTMEDIA_filesystem($node, $root_path = false, $flags = arra
 }
 	
 function importSkipFile($file) {
-	return $file == "." || $file == ".." || $file == "@eaDir";
+	return $file == "." || $file == ".." || $file == "@eaDir" || $file == ".AppleDouble";
 }
 
 ?>
