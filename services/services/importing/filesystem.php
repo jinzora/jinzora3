@@ -77,7 +77,7 @@ function SERVICE_IMPORTMEDIA_filesystem($node, $root_path = false, $flags = arra
 	$track_filenames = array();
 	$track_metas = array();
 	while ($file = readdir($handle)) {
-		if ($file == "." || $file == "..") {
+		if (importSkipFile($file)) {
 			continue;
 		}
 		
@@ -186,4 +186,8 @@ function SERVICE_IMPORTMEDIA_filesystem($node, $root_path = false, $flags = arra
 	}
 }
 	
+function importSkipFile($file) {
+	return $file == "." || $file == ".." || $file == "@eaDir";
+}
+
 ?>
