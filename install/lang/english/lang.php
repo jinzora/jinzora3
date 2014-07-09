@@ -198,6 +198,6 @@
 	$word_skip_import_message = "If you choose not to import media at this time you will need to use the Media Manager tools in the System Tools drop down box once installation is complete.";
 	$word_enable_jukebox = "Jukebox Mode";
 	$word_enable_jukebox_note = "Only choose Jukebox & Streaming if you plan on running a server side Jukebox utilizing MPD, Winamp or another similar server software.  If you are unsure choose 'Streaming Only'";
-	$word_enable_jukebox_help = "If you plan on only offering streaming choose Streaming Only.  If you would like to setup Jinzora as a server side music system, where media that is played is played on the server rather than streamed chosoe Streaming & Jukebox.  This will require further configuration after installation is complete.";
+	$word_enable_jukebox_help = "If you plan on only offering streaming choose Streaming Only.  If you would like to setup Jinzora as a server side music system, where media that is played is played on the server rather than streamed choose Streaming & Jukebox.  This will require further configuration after installation is complete.";
 	$word_style = "Style:";
 ?>
